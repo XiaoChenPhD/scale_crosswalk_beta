@@ -1,0 +1,864 @@
+---
+title: "do_plots"
+author: "Xiao Chen"
+date: "2024-07-03"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load data
+
+load the benchmark results
+
+```{r load data}
+rm(list = ls())
+cat("\014")
+
+library(wesanderson)
+library(gtsummary)
+library(officer)
+library(readxl)
+library(dplyr)
+
+work_dir <- "/Users/ChenXiao/Library/CloudStorage/OneDrive-Personal/Documents/scale_crosswalk/Analysis"
+output_dir <- "/Users/ChenXiao/Library/CloudStorage/OneDrive-Personal/Documents/scale_crosswalk/plots_ALL_carryover"
+
+# Check if the path exists
+if (!file.exists(output_dir)) {
+  # If it doesn't exist, create the directory
+  dir.create(output_dir, recursive = TRUE)
+  message("Directory created.")
+} else {
+  message("Directory already exists.")
+}
+
+load(file.path(work_dir, "benchmarks_ALL_carryover.RData"))
+benchmarks_HAMD2MADRS <- df_rmse
+load(file.path(work_dir, "benchmarks_M2H_ALL_carryover.RData"))
+benchmarks_MADRS2HAMD <- df_rmse
+
+custom_colors <- c("Leucht 2018" = "#6C946F", "Linear Regression" = "#D4BDAC", "Percentile" = "#FFA823", "Random Forest Regression" = "#DC0083", "SVM Regression" = "#536493", "SVM Regression Item" = "#8CB9BD", "SVM Regression Cov" = "#E7F0DC", "SVM Regression Item Cov" = "#B6C7AA")
+```
+
+## Not used: Figure 1 heatmap for main findings
+
+rmse results: HAMD2MADRS
+
+comment out all the plot codes, some result matrix are still useful
+
+```{r heatmap hamd2madrs}
+library(pheatmap)
+
+data_matrix <- matrix(0, nrow = 5, ncol = 3)
+colnames(data_matrix) <- c("Baseline", "T30", "Delta")
+rownames(data_matrix) <- c("Leucht 2018", "Percentile", "Linear Regression", "Random Forest Regression", "SVM Regression")
+
+temp <- 0
+for (i in c(1,2,10)){
+  temp <- temp + 1
+  selected_values <- benchmarks_HAMD2MADRS[c(1,2,3,5,7),i]
+  data_matrix[, temp] = selected_values
+}
+
+# my_breaks <- seq(2.5, 6.5, length.out = 200)
+# jet_colors <- colorRampPalette(c("blue", "cyan", "yellow", "red"))(length(my_breaks) - 1)
+# png(file.path(output_dir, "benchmark_HAMD2MADRS_primary.png"), 
+#     width = 6000, height = 6000, res = 1200)
+# pheatmap(data_matrix,
+#          display_numbers = TRUE,
+#          number_color = "black",
+#          breaks = my_breaks,
+#          color = jet_colors,
+#          fontsize_number = 14,
+#          cluster_cols = FALSE,
+#          cluster_rows = FALSE)
+# dev.off()
+
+# to make bar plots
+df_H2M <- as.data.frame(data_matrix)
+df_H2M$Group <- "HAMD to MADRS"
+```
+
+MADRS2HAMD
+
+```{r heatmap madrs2hamd}
+data_matrix <- matrix(0, nrow = 5, ncol = 3)
+colnames(data_matrix) <- c("Baseline", "T30", "Delta")
+rownames(data_matrix) <- c("Leucht 2018", "Percentile", "Linear Regression", "Random Forest Regression", "SVM Regression")
+
+temp <- 0
+for (i in c(1,2,10)){
+  temp <- temp + 1
+  selected_values <- benchmarks_MADRS2HAMD[c(1,2,3,5,7),i]
+  data_matrix[, temp] = selected_values
+}
+
+# my_breaks <- seq(2.5, 6.5, length.out = 200)
+# jet_colors <- colorRampPalette(c("blue", "cyan", "yellow", "red"))(length(my_breaks) - 1)
+# png(file.path(output_dir, "benchmark_MADRS2HAMD_primary.png"), 
+#     width = 6000, height = 6000, res = 1200)
+# pheatmap(data_matrix,
+#          display_numbers = TRUE,
+#          number_color = "black",
+#          breaks = my_breaks,
+#          color = jet_colors,
+#          fontsize_number = 14,
+#          cluster_cols = FALSE,
+#          cluster_rows = FALSE)
+# dev.off()
+
+# to make bar plots
+df_M2H <- as.data.frame(data_matrix)
+df_M2H$Group <- "MADRS to HAMD"
+```
+
+## Make grouped bar plots instead
+
+this version is outdated
+
+```{r}
+library(ggplot2)
+
+
+# baseline
+selected_columns <- df_full[, c("Baseline", "Group")]
+df_current <- data.frame(selected_columns)
+df_current$Models <- rownames(df_current)
+rownames(df_current) <- 1:nrow(df_current)
+df_current$Models <- gsub("1$", "", df_current$Models)
+
+ggplot(df_current, aes(x = Group, y = Baseline, fill = Models)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_y_continuous(limits = c(0, ceiling(max_value)), breaks = seq(0, ceiling(max_value), by = 1)) +
+  labs(title = "Baseline", x = "", y = "RMSE") +
+  theme_classic() + coord_flip()
+
+ggsave(file.path(output_dir, "primary_baseline.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
+
+# T30
+selected_columns <- df_full[, c("T30", "Group")]
+df_current <- data.frame(selected_columns)
+df_current$Models <- rownames(df_current)
+rownames(df_current) <- 1:nrow(df_current)
+df_current$Models <- gsub("1$", "", df_current$Models)
+
+ggplot(df_current, aes(x = Group, y = T30, fill = Models)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_y_continuous(limits = c(0, ceiling(max_value)), breaks = seq(0, ceiling(max_value), by = 1)) +
+  labs(title = "T30", x = "", y = "RMSE") +
+  theme_classic() + coord_flip()
+
+ggsave(file.path(output_dir, "primary_T30.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
+
+# delta
+selected_columns <- df_full[, c("Delta", "Group")]
+df_current <- data.frame(selected_columns)
+df_current$Models <- rownames(df_current)
+rownames(df_current) <- 1:nrow(df_current)
+df_current$Models <- gsub("1$", "", df_current$Models)
+
+ggplot(df_current, aes(x = Group, y = Delta, fill = Models)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_y_continuous(limits = c(0, ceiling(max_value)), breaks = seq(0, ceiling(max_value), by = 1)) +
+  labs(title = "Delta", x = "", y = "RMSE") +
+  theme_classic() + coord_flip()
+
+ggsave(file.path(output_dir, "primary_Delta.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
+```
+
+## Another set of bar plots
+
+This version is used
+
+```{r}
+library(tidyverse)
+
+
+df_full <- rbind(df_H2M,df_M2H)
+selected_columns = df_full[, c('Baseline', 'T30', 'Delta')]
+max_value <-  max(selected_columns)
+
+my_height <-  8
+my_width <- 12
+
+df_H2M$Group <- NULL
+df_H2M$Models <- rownames(df_H2M)
+rownames(df_H2M) <- 1:nrow(df_H2M)
+
+df_long <- df_H2M %>% 
+  pivot_longer(cols = c("Baseline", "T30", "Delta"),
+               names_to = "Time point",
+               values_to = "RMSE")
+df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Delta", "T30", "Baseline"), ordered = TRUE)
+
+
+ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_y_continuous(limits = c(0, ceiling(max_value)), breaks = seq(0, ceiling(max_value), by = 1)) +
+  labs(title = "", x = "", y = "RMSE") +
+  theme_classic() + coord_flip() +
+  scale_fill_manual(values = custom_colors) +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggsave(file.path(output_dir, "primary_H2M.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
+
+df_M2H$Group <- NULL
+df_M2H$Models <- rownames(df_M2H)
+rownames(df_M2H) <- 1:nrow(df_M2H)
+
+df_long <- df_M2H %>% 
+  pivot_longer(cols = c("Baseline", "T30", "Delta"),
+               names_to = "Time point",
+               values_to = "RMSE")
+df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Delta", "T30", "Baseline"), ordered = TRUE)
+
+
+ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_y_continuous(limits = c(0, ceiling(max_value)), breaks = seq(0, ceiling(max_value), by = 1)) +
+  labs(title = "", x = "", y = "RMSE") +
+  theme_classic() + coord_flip() +
+  scale_fill_manual(values = custom_colors) +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggsave(file.path(output_dir, "primary_M2H.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
+```
+
+## Supplementary Figure 1
+
+the benchmark results at the followup time points: HAMD to MADRS
+
+```{r HAMD2MADRS followup}
+library(pheatmap)
+
+
+data_matrix <- matrix(0, nrow = 5, ncol = 3)
+colnames(data_matrix) <- c("Followup 1", "Followup 2", "Followup 3")
+rownames(data_matrix) <- c("Leucht 2018", "Percentile", "Linear Regression", "Random Forest Regression", "SVM Regression")
+
+temp <- 0
+for (i in c(4,6,8)){
+  temp <- temp + 1
+  selected_values <- benchmarks_HAMD2MADRS[c(1,2,3,5,7),i]
+  data_matrix[, temp] = selected_values
+}
+
+# my_breaks <- seq(2.5, 5, length.out = 200)
+# jet_colors <- colorRampPalette(c("blue", "cyan", "yellow", "red"))(length(my_breaks) - 1)
+# png(file.path(output_dir, "benchmark_HAMD2MADRS_followup.png"), 
+#     width = 6000, height = 6000, res = 1200)
+# pheatmap(data_matrix,
+#          display_numbers = TRUE,
+#          number_color = "black",
+#          breaks = my_breaks,
+#          color = jet_colors,
+#          fontsize_number = 14,
+#          cluster_cols = FALSE,
+#          cluster_rows = FALSE)
+# dev.off()
+
+df_H2M <- as.data.frame(data_matrix)
+df_H2M$Group <- "HAMD to MADRS"
+```
+
+MADRS to HAMD
+
+```{r MADRS2HAMD followup}
+library(pheatmap)
+
+
+data_matrix <- matrix(0, nrow = 5, ncol = 3)
+colnames(data_matrix) <- c("Followup 1", "Followup 2", "Followup 3")
+rownames(data_matrix) <- c("Leucht 2018", "Percentile", "Linear Regression", "Random Forest Regression", "SVM Regression")
+
+temp <- 0
+for (i in c(4,6,8)){
+  temp <- temp + 1
+  selected_values <- benchmarks_MADRS2HAMD[c(1,2,3,5,7),i]
+  data_matrix[, temp] = selected_values
+}
+
+# my_breaks <- seq(2.5, 5, length.out = 200)
+# jet_colors <- colorRampPalette(c("blue", "cyan", "yellow", "red"))(length(my_breaks) - 1)
+# png(file.path(output_dir, "benchmark_MADRS2HAMD_followup.png"), 
+#     width = 6000, height = 6000, res = 1200)
+# pheatmap(data_matrix,
+#          display_numbers = TRUE,
+#          number_color = "black",
+#          breaks = my_breaks,
+#          color = jet_colors,
+#          fontsize_number = 14,
+#          cluster_cols = FALSE,
+#          cluster_rows = FALSE)
+# dev.off()
+
+df_M2H <- as.data.frame(data_matrix)
+df_M2H$Group <- "MADRS to HAMD"
+```
+
+## Plot bar plots instead
+
+This version is used
+
+```{r}
+library(tidyverse)
+
+
+df_full <- rbind(df_H2M,df_M2H)
+selected_columns = df_full[, c("Followup 1", "Followup 2", "Followup 3")]
+max_value <-  max(selected_columns)
+
+my_height <-  8
+my_width <- 12
+
+df_H2M$Group <- NULL
+df_H2M$Models <- rownames(df_H2M)
+rownames(df_H2M) <- 1:nrow(df_H2M)
+
+df_long <- df_H2M %>% 
+  pivot_longer(cols = c("Followup 1", "Followup 2", "Followup 3"),
+               names_to = "Time point",
+               values_to = "RMSE")
+df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Followup 3", "Followup 2", "Followup 1"), ordered = TRUE)
+
+
+ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_y_continuous(limits = c(0, ceiling(max_value)), breaks = seq(0, ceiling(max_value), by = 1)) +
+  labs(title = "", x = "", y = "RMSE") +
+  theme_classic() + coord_flip() +
+  scale_fill_manual(values = custom_colors) +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggsave(file.path(output_dir, "folllowup_H2M.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
+
+df_M2H$Group <- NULL
+df_M2H$Models <- rownames(df_M2H)
+rownames(df_M2H) <- 1:nrow(df_M2H)
+
+df_long <- df_M2H %>% 
+  pivot_longer(cols = c("Followup 1", "Followup 2", "Followup 3"),
+               names_to = "Time point",
+               values_to = "RMSE")
+df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Followup 3", "Followup 2", "Followup 1"), ordered = TRUE)
+
+
+ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_y_continuous(limits = c(0, ceiling(max_value)), breaks = seq(0, ceiling(max_value), by = 1)) +
+  labs(title = "", x = "", y = "RMSE") +
+  theme_classic() + coord_flip() +
+  scale_fill_manual(values = custom_colors) +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggsave(file.path(output_dir, "folllowup_M2H.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
+```
+
+## Figure 2: baseline model predicting other time points
+
+HAMD 2 MADRS
+
+```{r}
+data_matrix <- matrix(0, nrow = 4, ncol = 5)
+colnames(data_matrix) <- c("T30", "Followup 1", "Followup 2", "Followup 3", "Delta")
+rownames(data_matrix) <- c("Percentile", "Linear Regression", "Random Forest Regression", "SVM Regression")
+
+temp <- 0
+for (i in c(3,5,7,9,11)){
+  temp <- temp + 1
+  selected_values <- benchmarks_HAMD2MADRS[c(2,3,5,7),i]
+  data_matrix[, temp] = selected_values
+}
+
+# my_breaks <- seq(3, 11, length.out = 200)
+# jet_colors <- colorRampPalette(c("blue", "cyan", "yellow", "red"))(length(my_breaks) - 1)
+# png(file.path(output_dir, "/benchmark_HAMD2MADRS_baseline_model.png"), 
+#     width = 6000, height = 5000, res = 1200)
+# pheatmap(data_matrix,
+#          display_numbers = TRUE,
+#          number_color = "black",
+#          breaks = my_breaks,
+#          color = jet_colors,
+#          fontsize_number = 14,
+#          cluster_cols = FALSE,
+#          cluster_rows = FALSE)
+# dev.off()
+
+# to make bar plots
+df_H2M <- as.data.frame(data_matrix)
+df_H2M$Group <- "HAMD to MADRS"
+```
+
+MADRS to HAMD
+
+```{r}
+data_matrix <- matrix(0, nrow = 4, ncol = 5)
+colnames(data_matrix) <- c("T30", "Followup 1", "Followup 2", "Followup 3", "Delta")
+rownames(data_matrix) <- c("Percentile", "Linear Regression", "Random Forest Regression", "SVM Regression")
+
+temp <- 0
+for (i in c(3,5,7,9,11)){
+  temp <- temp + 1
+  selected_values <- benchmarks_MADRS2HAMD[c(2,3,5,7),i]
+  data_matrix[, temp] = selected_values
+}
+
+# my_breaks <- seq(3, 11, length.out = 200)
+# jet_colors <- colorRampPalette(c("blue", "cyan", "yellow", "red"))(length(my_breaks) - 1)
+# png(file.path(output_dir, "benchmark_MADRS2HAMD_baseline_model.png"), 
+#     width = 6000, height = 5000, res = 1200)
+# pheatmap(data_matrix,
+#          display_numbers = TRUE,
+#          number_color = "black",
+#          breaks = my_breaks,
+#          color = jet_colors,
+#          fontsize_number = 14,
+#          cluster_cols = FALSE,
+#          cluster_rows = FALSE)
+# dev.off()
+
+# to make bar plots
+df_M2H <- as.data.frame(data_matrix)
+df_M2H$Group <- "MADRS to HAMD"
+```
+
+## New horizontal bar plots
+
+```{r}
+library(tidyverse)
+
+df_full <- rbind(df_H2M,df_M2H)
+selected_columns = df_full[, c('T30', 'Followup 1', 'Followup 2', 'Followup 3', 'Delta')]
+max_value <-  max(selected_columns)
+
+my_height <-  8
+my_width <- 14
+
+df_H2M$Group <- NULL
+df_H2M$Models <- rownames(df_H2M)
+rownames(df_H2M) <- 1:nrow(df_H2M)
+
+df_long <- df_H2M %>% 
+  pivot_longer(cols = c('T30', 'Followup 1', 'Followup 2', 'Followup 3', 'Delta'),
+               names_to = "Time point",
+               values_to = "RMSE")
+df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Delta", "Followup 3", "Followup 2", 'Followup 1', 'T30'), ordered = TRUE)
+
+
+ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_y_continuous(limits = c(0, ceiling(max_value)), breaks = seq(0, ceiling(max_value), by = 1)) +
+  labs(title = "", x = "", y = "RMSE") +
+  theme_classic() + coord_flip() +
+  scale_fill_manual(values = custom_colors) +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggsave(file.path(output_dir, "baseline_model_H2M.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
+
+df_M2H$Group <- NULL
+df_M2H$Models <- rownames(df_M2H)
+rownames(df_M2H) <- 1:nrow(df_M2H)
+
+df_long <- df_M2H %>% 
+  pivot_longer(cols = c('T30', 'Followup 1', 'Followup 2', 'Followup 3', 'Delta'),
+               names_to = "Time point",
+               values_to = "RMSE")
+df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Delta", "Followup 3", "Followup 2", 'Followup 1', 'T30'), ordered = TRUE)
+
+
+ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_y_continuous(limits = c(0, ceiling(max_value)), breaks = seq(0, ceiling(max_value), by = 1)) +
+  labs(title = "", x = "", y = "RMSE") +
+  theme_classic() + coord_flip() +
+  scale_fill_manual(values = custom_colors) +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggsave(file.path(output_dir, "baseline_model_M2H.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
+```
+
+## Trajectory plot
+
+this figure was plotted using \~/traj_compare_v2.R
+
+## Comparing using item scores or total scores
+
+```{r HAMD to MADRS}
+data_matrix <- matrix(0, nrow = 3, ncol = 3)
+colnames(data_matrix) <- c("Baseline", "T30", "Delta")
+rownames(data_matrix) <- c("Percentile", "SVM Regression", "SVM Regression Item")
+
+temp <- 0
+for (i in c(1,2,10)){
+  temp <- temp + 1
+  selected_values <- benchmarks_HAMD2MADRS[c(2,7,8),i]
+  data_matrix[, temp] = selected_values
+}
+
+# my_breaks <- seq(3.5, 6.5, length.out = 200)
+# jet_colors <- colorRampPalette(c("blue", "cyan", "yellow", "red"))(length(my_breaks) - 1)
+# png(file.path(output_dir, "benchmark_HAMD2MADRS_Item.png"), 
+#     width = 6000, height = 6000, res = 1200)
+# pheatmap(data_matrix,
+#          display_numbers = TRUE,
+#          number_color = "black",
+#          breaks = my_breaks,
+#          color = jet_colors,
+#          fontsize_number = 14,
+#          cluster_cols = FALSE,
+#          cluster_rows = FALSE)
+# dev.off()
+
+# to make bar plots
+df_H2M <- as.data.frame(data_matrix)
+df_H2M$Group <- "HAMD to MADRS"
+```
+
+MADRS to HAMD
+
+```{r MADRS to HAMD}
+data_matrix <- matrix(0, nrow = 3, ncol = 3)
+colnames(data_matrix) <- c("Baseline", "T30", "Delta")
+rownames(data_matrix) <- c("Percentile", "SVM Regression", "SVM Regression Item")
+
+temp <- 0
+for (i in c(1,2,10)){
+  temp <- temp + 1
+  selected_values <- benchmarks_MADRS2HAMD[c(2,7,8),i]
+  data_matrix[, temp] = selected_values
+}
+
+# my_breaks <- seq(3.5, 6.5, length.out = 200)
+# jet_colors <- colorRampPalette(c("blue", "cyan", "yellow", "red"))(length(my_breaks) - 1)
+# png(file.path(output_dir, "benchmark_MADRS2HAMD_Item.png"), 
+#     width = 6000, height = 6000, res = 1200)
+# pheatmap(data_matrix,
+#          display_numbers = TRUE,
+#          number_color = "black",
+#          breaks = my_breaks,
+#          color = jet_colors,
+#          fontsize_number = 14,
+#          cluster_cols = FALSE,
+#          cluster_rows = FALSE)
+# dev.off()
+
+# to make bar plots
+df_M2H <- as.data.frame(data_matrix)
+df_M2H$Group <- "MADRS to HAMD"
+```
+
+## Plot bar figure instead
+
+```{r}
+library(tidyverse)
+
+
+df_full <- rbind(df_H2M,df_M2H)
+selected_columns = df_full[, c("Baseline", "T30", "Delta")]
+max_value <-  max(selected_columns)
+
+my_height <-  8
+my_width <- 12
+
+df_H2M$Group <- NULL
+df_H2M$Models <- rownames(df_H2M)
+rownames(df_H2M) <- 1:nrow(df_H2M)
+
+df_long <- df_H2M %>% 
+  pivot_longer(cols = c("Baseline", "T30", "Delta"),
+               names_to = "Time point",
+               values_to = "RMSE")
+df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Delta", "T30", "Baseline"), ordered = TRUE)
+
+
+ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_y_continuous(limits = c(0, ceiling(max_value)), breaks = seq(0, ceiling(max_value), by = 1)) +
+  labs(title = "", x = "", y = "RMSE") +
+  theme_classic() + coord_flip() +
+  scale_fill_manual(values = custom_colors) +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggsave(file.path(output_dir, "Item_compare_H2M.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
+
+df_M2H$Group <- NULL
+df_M2H$Models <- rownames(df_M2H)
+rownames(df_M2H) <- 1:nrow(df_M2H)
+
+df_long <- df_M2H %>% 
+  pivot_longer(cols = c("Baseline", "T30", "Delta"),
+               names_to = "Time point",
+               values_to = "RMSE")
+df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Delta", "T30", "Baseline"), ordered = TRUE)
+
+
+ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_y_continuous(limits = c(0, ceiling(max_value)), breaks = seq(0, ceiling(max_value), by = 1)) +
+  labs(title = "", x = "", y = "RMSE") +
+  theme_classic() + coord_flip() +
+  scale_fill_manual(values = custom_colors) +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggsave(file.path(output_dir, "Item_compare_M2H.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
+```
+
+## Showing results with vs. without covs
+
+```{r}
+load(file.path(work_dir, "benchmarks_covariates.RData"))
+data_matrix <- matrix(0, nrow = 4, ncol = 3)
+colnames(data_matrix) <- c("Baseline", "T30", "Delta")
+rownames(data_matrix) <- c("SVM Regression", "SVM Regression Cov", "SVM Regression Item", "SVM Regression Item Cov")
+
+temp <- 0
+for (i in c(1,2,10)){
+  temp <- temp + 1
+  selected_values <- df_rmse[c(9,10,11,12),i]
+  data_matrix[, temp] = selected_values
+}
+
+# my_breaks <- seq(3.5, 6, length.out = 200)
+# jet_colors <- colorRampPalette(c("blue", "cyan", "yellow", "red"))(length(my_breaks) - 1)
+# png(file.path(output_dir, "benchmark_HAMD2MADRS_cov.png"), 
+#     width = 6000, height = 6000, res = 1200)
+# pheatmap(data_matrix,
+#          display_numbers = TRUE,
+#          number_color = "black",
+#          breaks = my_breaks,
+#          color = jet_colors,
+#          fontsize_number = 14,
+#          cluster_cols = FALSE,
+#          cluster_rows = FALSE)
+# dev.off()
+
+# to make bar plots
+df_H2M <- as.data.frame(data_matrix)
+df_H2M$Group <- "HAMD to MADRS"
+```
+
+## Plot bar figures instead
+
+```{r}
+library(tidyverse)
+
+
+selected_columns = df_H2M[, c("Baseline", "T30", "Delta")]
+max_value <-  max(selected_columns)
+
+my_height <-  8
+my_width <- 12
+
+df_H2M$Group <- NULL
+df_H2M$Models <- rownames(df_H2M)
+rownames(df_H2M) <- 1:nrow(df_H2M)
+
+df_long <- df_H2M %>% 
+  pivot_longer(cols = c("Baseline", "T30", "Delta"),
+               names_to = "Time point",
+               values_to = "RMSE")
+df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Delta", "T30", "Baseline"), ordered = TRUE)
+
+
+ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  scale_y_continuous(limits = c(0, ceiling(max_value)), breaks = seq(0, ceiling(max_value), by = 1)) +
+  labs(title = "", x = "", y = "RMSE") +
+  theme_classic() + coord_flip() +
+  scale_fill_manual(values = custom_colors) +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggsave(file.path(output_dir, "Cov_compare_H2M.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
+```
+
+## Table 1
+
+```{r}
+# read in data
+file_path <- file.path(work_dir, "FOURD_CARTBIND_dataset.xlsx")
+FOURD <- read_excel(file_path, sheet = "FOURD")
+CARTBIND <- read_excel(file_path, sheet = "CARTBIND")
+
+FOURD$BENZO[is.na(FOURD$BENZO)] <- 0
+FOURD$ANTIDEP[is.na(FOURD$ANTIDEP)] <- 0
+FOURD$ANTIDEP_COMB[is.na(FOURD$ANTIDEP_COMB)] <- 0
+
+# To address the high missing rate of the baseline time point in FOURD dataset, 
+# check if they are NA, if yes, carry over the screen data
+FOURD$hrsd1s_b <- ifelse(is.na(FOURD$hrsd1s_b), FOURD$hrsd1s_s, FOURD$hrsd1s_b)
+FOURD$hrsd2s_b <- ifelse(is.na(FOURD$hrsd2s_b), FOURD$hrsd2s_s, FOURD$hrsd2s_b)
+FOURD$hrsd3s_b <- ifelse(is.na(FOURD$hrsd3s_b), FOURD$hrsd3s_s, FOURD$hrsd3s_b)
+FOURD$hrsd4s_b <- ifelse(is.na(FOURD$hrsd4s_b), FOURD$hrsd4s_s, FOURD$hrsd4s_b)
+FOURD$hrsd5s_b <- ifelse(is.na(FOURD$hrsd5s_b), FOURD$hrsd5s_s, FOURD$hrsd5s_b)
+FOURD$hrsd6s_b <- ifelse(is.na(FOURD$hrsd6s_b), FOURD$hrsd6s_s, FOURD$hrsd6s_b)
+FOURD$hrsd7s_b <- ifelse(is.na(FOURD$hrsd7s_b), FOURD$hrsd7s_s, FOURD$hrsd7s_b)
+FOURD$hrsd8s_b <- ifelse(is.na(FOURD$hrsd8s_b), FOURD$hrsd8s_s, FOURD$hrsd8s_b)
+FOURD$hrsd9s_b <- ifelse(is.na(FOURD$hrsd9s_b), FOURD$hrsd9s_s, FOURD$hrsd9s_b)
+FOURD$hrsd10s_b <- ifelse(is.na(FOURD$hrsd10s_b), FOURD$hrsd10s_s, FOURD$hrsd10s_b)
+FOURD$hrsd11s_b <- ifelse(is.na(FOURD$hrsd11s_b), FOURD$hrsd11s_s, FOURD$hrsd11s_b)
+FOURD$hrsd12s_b <- ifelse(is.na(FOURD$hrsd12s_b), FOURD$hrsd12s_s, FOURD$hrsd12s_b)
+FOURD$hrsd13s_b <- ifelse(is.na(FOURD$hrsd13s_b), FOURD$hrsd13s_s, FOURD$hrsd13s_b)
+FOURD$hrsd14s_b <- ifelse(is.na(FOURD$hrsd14s_b), FOURD$hrsd14s_s, FOURD$hrsd14s_b)
+FOURD$hrsd15s_b <- ifelse(is.na(FOURD$hrsd15s_b), FOURD$hrsd15s_s, FOURD$hrsd15s_b)
+FOURD$hrsd16s_b <- ifelse(is.na(FOURD$hrsd16s_b), FOURD$hrsd16s_s, FOURD$hrsd16s_b)
+FOURD$hrsd17s_b <- ifelse(is.na(FOURD$hrsd17s_b), FOURD$hrsd17s_s, FOURD$hrsd17s_b)
+FOURD$hrsd_total_b <- ifelse(is.na(FOURD$hrsd_total_b), FOURD$hrsd_total_s, FOURD$hrsd_total_b)
+
+# also carry over the madrs screen data to the baseline data in FOURD
+FOURD$madrs1_b <- ifelse(is.na(FOURD$madrs1_b), FOURD$madrs1_s, FOURD$madrs1_b)
+FOURD$madrs2_b <- ifelse(is.na(FOURD$madrs2_b), FOURD$madrs2_s, FOURD$madrs2_b)
+FOURD$madrs3_b <- ifelse(is.na(FOURD$madrs3_b), FOURD$madrs3_s, FOURD$madrs3_b)
+FOURD$madrs4_b <- ifelse(is.na(FOURD$madrs4_b), FOURD$madrs4_s, FOURD$madrs4_b)
+FOURD$madrs5_b <- ifelse(is.na(FOURD$madrs5_b), FOURD$madrs5_s, FOURD$madrs5_b)
+FOURD$madrs6_b <- ifelse(is.na(FOURD$madrs6_b), FOURD$madrs6_s, FOURD$madrs6_b)
+FOURD$madrs7_b <- ifelse(is.na(FOURD$madrs7_b), FOURD$madrs7_s, FOURD$madrs7_b)
+FOURD$madrs8_b <- ifelse(is.na(FOURD$madrs8_b), FOURD$madrs8_s, FOURD$madrs8_b)
+FOURD$madrs9_b <- ifelse(is.na(FOURD$madrs9_b), FOURD$madrs9_s, FOURD$madrs9_b)
+FOURD$madrs10_b <- ifelse(is.na(FOURD$madrs10_b), FOURD$madrs10_s, FOURD$madrs10_b)
+FOURD$total_madrs_b <- ifelse(is.na(FOURD$total_madrs_b), FOURD$total_madrs_s, FOURD$total_madrs_b)
+
+# carryover the CARTBIND data
+CARTBIND$hrsd1s_b2 <- ifelse(is.na(CARTBIND$hrsd1s_b2), CARTBIND$hrsd1s_b1, CARTBIND$hrsd1s_b2)
+CARTBIND$hrsd2s_b2 <- ifelse(is.na(CARTBIND$hrsd2s_b2), CARTBIND$hrsd2s_b1, CARTBIND$hrsd2s_b2)
+CARTBIND$hrsd3s_b2 <- ifelse(is.na(CARTBIND$hrsd3s_b2), CARTBIND$hrsd3s_b1, CARTBIND$hrsd3s_b2)
+CARTBIND$hrsd4s_b2 <- ifelse(is.na(CARTBIND$hrsd4s_b2), CARTBIND$hrsd4s_b1, CARTBIND$hrsd4s_b2)
+CARTBIND$hrsd5s_b2 <- ifelse(is.na(CARTBIND$hrsd5s_b2), CARTBIND$hrsd5s_b1, CARTBIND$hrsd5s_b2)
+CARTBIND$hrsd6s_b2 <- ifelse(is.na(CARTBIND$hrsd6s_b2), CARTBIND$hrsd6s_b1, CARTBIND$hrsd6s_b2)
+CARTBIND$hrsd7s_b2 <- ifelse(is.na(CARTBIND$hrsd7s_b2), CARTBIND$hrsd7s_b1, CARTBIND$hrsd7s_b2)
+CARTBIND$hrsd8s_b2 <- ifelse(is.na(CARTBIND$hrsd8s_b2), CARTBIND$hrsd8s_b1, CARTBIND$hrsd8s_b2)
+CARTBIND$hrsd9s_b2 <- ifelse(is.na(CARTBIND$hrsd9s_b2), CARTBIND$hrsd9s_b1, CARTBIND$hrsd9s_b2)
+CARTBIND$hrsd10s_b2 <- ifelse(is.na(CARTBIND$hrsd10s_b2), CARTBIND$hrsd10s_b1, CARTBIND$hrsd10s_b2)
+CARTBIND$hrsd11s_b2 <- ifelse(is.na(CARTBIND$hrsd11s_b2), CARTBIND$hrsd11s_b1, CARTBIND$hrsd11s_b2)
+CARTBIND$hrsd12s_b2 <- ifelse(is.na(CARTBIND$hrsd12s_b2), CARTBIND$hrsd12s_b1, CARTBIND$hrsd12s_b2)
+CARTBIND$hrsd13s_b2 <- ifelse(is.na(CARTBIND$hrsd13s_b2), CARTBIND$hrsd13s_b1, CARTBIND$hrsd13s_b2)
+CARTBIND$hrsd14s_b2 <- ifelse(is.na(CARTBIND$hrsd14s_b2), CARTBIND$hrsd14s_b1, CARTBIND$hrsd14s_b2)
+CARTBIND$hrsd15s_b2 <- ifelse(is.na(CARTBIND$hrsd15s_b2), CARTBIND$hrsd15s_b1, CARTBIND$hrsd15s_b2)
+CARTBIND$hrsd16s_b2 <- ifelse(is.na(CARTBIND$hrsd16s_b2), CARTBIND$hrsd16s_b1, CARTBIND$hrsd16s_b2)
+CARTBIND$hrsd17s_b2 <- ifelse(is.na(CARTBIND$hrsd17s_b2), CARTBIND$hrsd17s_b1, CARTBIND$hrsd17s_b2)
+CARTBIND$hrsd_total_b2 <- ifelse(is.na(CARTBIND$hrsd_total_b2), CARTBIND$hrsd_total_b1, CARTBIND$hrsd_total_b2)
+
+# organize data
+#
+# Sex:
+# orignial codes
+# FOURD: 1 = Male; 2 = Female; 3 = Other; 4 = Prefer not to answer
+# CARTBIND: 1=Female; 2=Male; 3=Unspecified, 9999=Unknown
+# New codes
+# 1=Female; 2=Male; 9999=Unknown
+#
+# Race:
+# Orignial codes
+# FOURD: 1 = White; 2 = Black; 3 = Asian; 4 = American Indian or Alaska native; 5 = Native Hawaiian or Other Pacific Islander; 6 = Other; 7 = Prefers not to answer
+# CARTBIND: 1=American Indian/Native Alaskan, 2=Asian, 3=Black/African American, 4=White, 5=More than one race, 9996=Other, 9998= Prefer not to answer, 9999=Unknown
+# New codes
+# 1 = White; 2 = Black; 3 = Asian; 4 = American Indian or Alaska native; 5 = Other; 9999 = Unkown
+#
+# edu
+# convert catbind data into education in years
+# benzo
+# 0=No; 1=Yes
+# antidep
+# 0=No; 1=Yes
+# ANTIDEP_COMB
+# 0=No; 1=Yes
+# past_ect_yes_no
+# 0=No; 1=Yes
+# current psycho therapy yes no
+# 0=No; 1=Yes
+
+FOURD_renamed <- FOURD %>% 
+      select(
+        subj_id, AGE, SEX, RACE, YRS_EDUC, BENZO, ANTIDEP, 
+        ANTIDEP_COMB, past_ect_yesno, current_psyther_yesno,
+        hrsd_total_b, total_madrs_b
+      ) %>% rename(age = AGE, sex = SEX, ethnicity = RACE, educ = YRS_EDUC,
+        benzo = BENZO, antidep = ANTIDEP, antidep.combintn = ANTIDEP_COMB
+           ) %>% mutate(ethnicity = recode(ethnicity, `6` = 5)
+           ) %>% mutate(ethnicity = recode(ethnicity, `7` = 9999)
+           ) %>% mutate(sex = recode(sex, `1` = 2, `2` = 1, `3` = 9999, `4` = 9999)
+                        )%>% mutate(site = "FOURD")
+
+CARTBIND_renamed <- CARTBIND %>% 
+       select(
+        subj_id, age, sex, ethnicity, educ, benzo, antidep, `antidep combintn`, past_ect_yesno, current_psyther_yesno, hrsd_total_b2, total_madrs_b
+      )%>% rename(
+        antidep.combintn = `antidep combintn`,
+        hrsd_total_b = hrsd_total_b2
+      ) %>% mutate(
+        sex = recode(sex, `3` = 9999)
+      ) %>% mutate(
+        ethnicity = recode(ethnicity, `4` = 1, `3` = 2, `2` = 3, `1` = 4, `9996` = 5, `9998` = 9999, `9999` = 9999)
+      ) %>% mutate(
+        educ = recode(educ,
+          `1` = 0, `2` = 1, `3` = 2, `4` = 3, `5` = 4, `6` = 5, `7` = 6,
+          `8` = 7, `9` = 8, `10` = 9, `11` = 10, `12` = 11, `13` = 12,
+          `14` = 12, `15` = 12, `16` = 15, `17` = 15, `18` = 15,
+          `19` = 16,  `20` = 18, `21` = 22, `22` = 22
+        )
+      ) %>% mutate(site = "CARTBIND")
+
+df4table <- rbind(FOURD_renamed, CARTBIND_renamed)
+colnames(df4table) <- c("Subject ID", "Age", "Sex", "Ethnicity", "Education (years)", "Benzodiazepine use", "Antidepressant use", "Antidepressant combination use", "Past ECT", "Current psychotherapy", "HAMD", "MADRS", "Site")
+df4table <- df4table %>%
+  mutate(Sex = recode(Sex,
+                      `1` = "Female",
+                      `2` = "Male",
+                      `9999` = "Missing")
+         ) 
+  
+df4table$Ethnicity <- factor(df4table$Ethnicity, levels = c(1,2,3,4,5,9999), labels = c("White", "Black/African American", "Asian", "American Indian/Alaska native", "Other", "Missing"))
+
+# make table
+summary_table <- df4table %>%
+  select(Site, Age, Sex, Ethnicity, `Education (years)`, `Benzodiazepine use`, `Antidepressant use`, `Antidepressant combination use`, `Past ECT`, `Current psychotherapy`, HAMD, MADRS) %>%
+  tbl_summary(
+    by = Site,
+    statistic = list(
+      Age ~ "{mean} ({sd})",
+      `Education (years)` ~ "{mean} ({sd})",
+      HAMD ~ "{mean} ({sd})",
+      MADRS ~ "{mean} ({sd})",
+      all_categorical() ~ "{n} ({p}%)"
+    ),
+    missing_text = "Missing",
+    digits = all_continuous() ~ 2
+  ) %>%
+  add_p() %>%
+  add_overall(col_label = "**Total sample**, N = {N}") %>% 
+  bold_labels()
+
+summary_table
+```
+
+## Get the value range
+
+```{r}
+work_dir <- "/Users/ChenXiao/Library/CloudStorage/OneDrive-Personal/Documents/scale_crosswalk/Analysis"
+
+# current data
+load(file.path(work_dir, "benchmarks_ALL_carryover.RData"))
+df_subset <- df_rmse[, -c(3, 5, 7, 9, 11)]
+row_mins_H2M <- apply(df_subset, 1, function(x) min(x, na.rm = TRUE))
+row_maxs_H2M <- apply(df_subset, 1, function(x) max(x, na.rm = TRUE))
+load(file.path(work_dir, "benchmarks_M2H_ALL_carryover.RData"))
+df_subset <- df_rmse[, -c(3, 5, 7, 9, 11)]
+row_mins_M2H <- apply(df_subset, 1, function(x) min(x, na.rm = TRUE))
+row_maxs_M2H <- apply(df_subset, 1, function(x) max(x, na.rm = TRUE))
+mins <- rbind(row_mins_H2M, row_mins_M2H)
+maxs <- rbind(row_maxs_H2M, row_maxs_M2H)
+
+# baseline data
+load(file.path(work_dir, "benchmarks_ALL_carryover.RData"))
+df_subset <- df_rmse[, -c(1, 2, 4, 6, 8, 10)]
+row_mins_H2M <- apply(df_subset, 1, function(x) min(x, na.rm = TRUE))
+row_maxs_H2M <- apply(df_subset, 1, function(x) max(x, na.rm = TRUE))
+load(file.path(work_dir, "benchmarks_M2H_ALL_carryover.RData"))
+df_subset <- df_rmse[, -c(1, 2, 4, 6, 8, 10)]
+row_mins_M2H <- apply(df_subset, 1, function(x) min(x, na.rm = TRUE))
+row_maxs_M2H <- apply(df_subset, 1, function(x) max(x, na.rm = TRUE))
+mins <- rbind(row_mins_H2M, row_mins_M2H)
+maxs <- rbind(row_maxs_H2M, row_maxs_M2H)
+```
