@@ -147,8 +147,9 @@ server <- function(input, output, session) {
           } else{
             if (value > 40){
               return(53)
-            }
-            else {
+            } else if (value < 0){
+              return(0)
+            }else {
               match_value <- match(value, conversion_table$HAMD)
               return(conversion_table$MADRS[match_value])
             }

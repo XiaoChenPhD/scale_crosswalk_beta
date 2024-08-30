@@ -383,7 +383,7 @@ for (flag in c(1,2,3,4,5,6)){
   
   # save the current models and organized data
   file_path <- file.path(work_dir, paste(model_current_prefix, as.character(flag), ".RData", sep = ""))
-  save(list = c("data_binded_imp", "equating_result", 
+  save(list = c("equating_result", 
                 "model_lm", "model_lm_item", 
                 "model_rf", "model_rf_item",
                 "model_svm", "model_svm_item"), file = file_path)
