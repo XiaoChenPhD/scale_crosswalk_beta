@@ -381,12 +381,15 @@ for (flag in c(1,2,3,4,5,6)){
          model_svm_b, model_svm_item_b, file = file_path)
   }
   
-  # save the current models and organized data
+  # save the current models
   file_path <- file.path(work_dir, paste(model_current_prefix, as.character(flag), ".RData", sep = ""))
   save(list = c("equating_result", 
                 "model_lm", "model_lm_item", 
                 "model_rf", "model_rf_item",
                 "model_svm", "model_svm_item"), file = file_path)
+  # save the organized data
+  file_path <- file.path(work_dir, paste(model_current_prefix, as.character(flag), "_imputed_data.RData", sep = ""))
+  save(list = "data_binded_imp", file = file_path)
 }
 
 # save the final benchmarking table

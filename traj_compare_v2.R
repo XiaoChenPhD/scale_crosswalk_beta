@@ -33,25 +33,25 @@ data_summary <- function(data, varname, groupnames){
 }
 
 work_dir <- "/Users/ChenXiao/Library/CloudStorage/OneDrive-Personal/Documents/scale_crosswalk/Analysis"
-output_dir <- "/Users/ChenXiao/Library/CloudStorage/OneDrive-Personal/Documents/scale_crosswalk/plots_ALL_carryover"
+output_dir <- "/Users/ChenXiao/Library/CloudStorage/OneDrive-Personal/Documents/scale_crosswalk/all_carryover_term_updated"
 column_names <- c('subj_id', 
-                  'Real_Baseline', 'Leucht 2018_Baseline', 'Percentile_Baseline', 
-                  'Linear Regression_Baseline', 'Random Forest Regression_Baseline','SVM Regression_Baseline',
-                  'Real_T30', 'Leucht 2018_T30', 'Percentile_T30', 
-                  'Linear Regression_T30', 'Random Forest Regression_T30','SVM Regression_T30', 
-                  'Real_Followup 1', 'Leucht 2018_Followup 1', 'Percentile_Followup 1', 
-                  'Linear Regression_Followup 1', 'Random Forest Regression_Followup 1', 'SVM Regression_Followup 1',
-                  'Real_Followup 2', 'Leucht 2018_Followup 2', 'Percentile_Followup 2', 
-                  'Linear Regression_Followup 2', 'Random Forest Regression_Followup 2', 'SVM Regression_Followup 2',
-                  'Real_Followup 3', 'Leucht 2018_Followup 3', 'Percentile_Followup 3', 
-                  'Linear Regression_Followup 3', 'Random Forest Regression_Followup 3', 'SVM Regression_Followup 3')
+                  'Real_Baseline', 'Pharmacotherapy Equipercentile Model_Baseline', 'rTMS Equipercentile Model_Baseline', 
+                  'Linear Regression_Baseline', 'RF Regression_Baseline','SVM Regression_Baseline',
+                  'Real_T30', 'Pharmacotherapy Equipercentile Model_T30', 'rTMS Equipercentile Model_T30', 
+                  'Linear Regression_T30', 'RF Regression_T30','SVM Regression_T30', 
+                  'Real_Follow-up 1', 'Pharmacotherapy Equipercentile Model_Follow-up 1', 'rTMS Equipercentile Model_Follow-up 1', 
+                  'Linear Regression_Follow-up 1', 'RF Regression_Follow-up 1', 'SVM Regression_Follow-up 1',
+                  'Real_Follow-up 2', 'Pharmacotherapy Equipercentile Model_Follow-up 2', 'rTMS Equipercentile Model_Follow-up 2', 
+                  'Linear Regression_Follow-up 2', 'RF Regression_Follow-up 2', 'SVM Regression_Follow-up 2',
+                  'Real_Follow-up 3', 'Pharmacotherapy Equipercentile Model_Follow-up 3', 'rTMS Equipercentile Model_Follow-up 3', 
+                  'Linear Regression_Follow-up 3', 'RF Regression_Follow-up 3', 'SVM Regression_Follow-up 3')
 col_num = 6 # the column number at each time point
-custom_colors <- c("Leucht 2018" = "#6C946F", "Linear Regression" = "#D4BDAC", "Percentile" = "#FFA823", 
-                   "Random Forest Regression" = "#DC0083", "SVM Regression" = "#536493",
+custom_colors <- c("Pharmacotherapy Equipercentile Model" = "#6C946F", "Linear Regression" = "#D4BDAC", "rTMS Equipercentile Model" = "#FFA823", 
+                   "RF Regression" = "#DC0083", "SVM Regression" = "#536493",
                    "Real" = "#3AA6B9")
 
 # load the data at time point 1 to get the subj list
-load(file.path(work_dir, "data_model_M2H_ALL_carryover_1.RData"))
+load(file.path(work_dir, "data_model_M2H_ALL_carryover_1_imputed_data.RData"))
 data_full <- as.data.frame(matrix(nrow = nrow(data_binded_imp), ncol = length(column_names)))
 colnames(data_full) <- column_names
 data_full$subj_id <- data_binded_imp$subj_id
@@ -64,6 +64,7 @@ data_full_b$subj_id <- data_binded_imp$subj_id
 for (flag in c(1,2,3,4,5)){
   load(file.path(work_dir, paste("data_model_ALL_carryover_", as.character(flag), ".RData", sep = "")))
   load(file.path(work_dir, "model_baseline_ALL_carryover.RData"))
+  load(file.path(work_dir, paste("data_model_ALL_carryover_", as.character(flag), "_imputed_data.RData", sep = "")))
   # real madrs data
   data_full[, (flag-1)*col_num + 2] <- data_binded_imp$madrs_total
   data_full_b[, (flag-1)*col_num + 2] <- data_binded_imp$madrs_total
@@ -122,7 +123,6 @@ for (flag in c(1,2,3,4,5)){
   x_test <- select(data_binded_imp, c(hrsd_total))
   predictions <- predict(model_svm_b, x_test)
   data_full_b[,(flag-1)*col_num + 7] <- predictions
-  
 }
 
 # organize data using timed models
@@ -132,14 +132,14 @@ data_long <- data_full %>%
     names_to = c("Group", ".value"),
     names_sep = "_"
   ) %>% pivot_longer(
-    cols = c("Baseline","T30","Followup 1","Followup 2","Followup 3"),
+    cols = c("Baseline","T30","Follow-up 1","Follow-up 2","Follow-up 3"),
     names_to = "Time",
     values_to = "Value"
   )
 df_summary <- data_summary(data_long, varname="Value", 
                            groupnames=c("Time", "Group"))
 df_summary$Group <- as.factor(df_summary$Group)
-df_summary$Time <- factor(df_summary$Time, levels = c("Baseline","T30","Followup 1","Followup 2","Followup 3"))
+df_summary$Time <- factor(df_summary$Time, levels = c("Baseline","T30","Follow-up 1","Follow-up 2","Follow-up 3"))
 
 # organize results from baseline models
 data_long_b <- data_full_b %>%
@@ -148,14 +148,14 @@ data_long_b <- data_full_b %>%
     names_to = c("Group", ".value"),
     names_sep = "_"
   ) %>% pivot_longer(
-    cols = c("Baseline","T30","Followup 1","Followup 2","Followup 3"),
+    cols = c("Baseline","T30","Follow-up 1","Follow-up 2","Follow-up 3"),
     names_to = "Time",
     values_to = "Value"
   )
 df_summary_b <- data_summary(data_long_b, varname="Value", 
                            groupnames=c("Time", "Group"))
 df_summary_b$Group <- as.factor(df_summary_b$Group)
-df_summary_b$Time <- factor(df_summary_b$Time, levels = c("Baseline","T30","Followup 1","Followup 2","Followup 3"))
+df_summary_b$Time <- factor(df_summary_b$Time, levels = c("Baseline","T30","Follow-up 1","Follow-up 2","Follow-up 3"))
 
 #plot timed model results
 ggplot(df_summary, aes(x= Time, y=Value, group=Group, color=Group)) + 
@@ -186,6 +186,7 @@ ggsave(file.path(output_dir, "baseline_model_v2.png"),
 for (flag in c(1,2,3,4,5)){
   load(file.path(work_dir, paste("data_model_M2H_ALL_carryover_", as.character(flag), ".RData", sep = "")))
   load(file.path(work_dir, "model_baseline_M2H_ALL_carryover.RData"))
+  load(file.path(work_dir, paste("data_model_M2H_ALL_carryover_", as.character(flag), "_imputed_data.RData", sep = "")))
   # real hrsd data
   data_full[, (flag-1)*col_num + 2] <- data_binded_imp$hrsd_total
   data_full_b[, (flag-1)*col_num + 2] <- data_binded_imp$hrsd_total
@@ -256,14 +257,14 @@ data_long <- data_full %>%
     names_to = c("Group", ".value"),
     names_sep = "_"
   ) %>% pivot_longer(
-    cols = c("Baseline","T30","Followup 1","Followup 2","Followup 3"),
+    cols = c("Baseline","T30","Follow-up 1","Follow-up 2","Follow-up 3"),
     names_to = "Time",
     values_to = "Value"
   )
 df_summary <- data_summary(data_long, varname="Value", 
                            groupnames=c("Time", "Group"))
 df_summary$Group <- as.factor(df_summary$Group)
-df_summary$Time <- factor(df_summary$Time, levels = c("Baseline","T30","Followup 1","Followup 2","Followup 3"))
+df_summary$Time <- factor(df_summary$Time, levels = c("Baseline","T30","Follow-up 1","Follow-up 2","Follow-up 3"))
 
 # organize results from baseline models
 data_long_b <- data_full_b %>%
@@ -272,14 +273,14 @@ data_long_b <- data_full_b %>%
     names_to = c("Group", ".value"),
     names_sep = "_"
   ) %>% pivot_longer(
-    cols = c("Baseline","T30","Followup 1","Followup 2","Followup 3"),
+    cols = c("Baseline","T30","Follow-up 1","Follow-up 2","Follow-up 3"),
     names_to = "Time",
     values_to = "Value"
   )
 df_summary_b <- data_summary(data_long_b, varname="Value", 
                              groupnames=c("Time", "Group"))
 df_summary_b$Group <- as.factor(df_summary_b$Group)
-df_summary_b$Time <- factor(df_summary_b$Time, levels = c("Baseline","T30","Followup 1","Followup 2","Followup 3"))
+df_summary_b$Time <- factor(df_summary_b$Time, levels = c("Baseline","T30","Follow-up 1","Follow-up 2","Follow-up 3"))
 
 #plot timed model results
 ggplot(df_summary, aes(x= Time, y=Value, group=Group, color=Group)) + 
