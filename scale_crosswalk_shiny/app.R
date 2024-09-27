@@ -35,6 +35,8 @@ ui <- fluidPage(
                              "text/comma-separated-values,text/plain",
                              ".csv")),
                  tags$hr(),
+                 downloadButton("downloadSample1", "Download Sample CSV Files"),
+                 tags$hr(),
                  radioButtons("predictor1", "Select Input Variable:", choices = c("HAMD-17 to MADRS", "MADRS to HAMD-17")),
                  radioButtons("model_type1", "Select Model Type:", 
                               choices = list("baseline" = 1, 
@@ -53,6 +55,8 @@ ui <- fluidPage(
                              "text/csv",
                              "text/comma-separated-values,text/plain",
                              ".csv")),
+                 tags$hr(),
+                 downloadButton("downloadSample2", "Download Sample CSV Files"),
                  tags$hr(),
                  radioButtons("predictor2", "Select Input Variable:", choices = c("HAMD-17 to MADRS", "MADRS to HAMD-17")),
                  radioButtons("model_type2", "Select Model Type:", 
@@ -275,6 +279,52 @@ server <- function(input, output, session) {
     content = function(file) {
       write.csv(model2(), file, row.names = FALSE)
     }
+  )
+  
+  # Download handler for the combined sample CSV files as a ZIP archive
+  output$downloadSample1 <- downloadHandler(
+    filename = function() {
+      "sample_csv_files.zip"
+    },
+    content = function(file) {
+      # Create a temporary directory to store the sample files
+      tmpdir <- tempdir()
+      # Define the paths to the sample files
+      sample_HAMD_score <- file.path("data", "example_HAMD_sum.csv")
+      sample_MADRS_score <- file.path("data", "example_MADRS_sum.csv")
+      # Copy the sample files to the temporary directory
+      file.copy(sample_HAMD_score, tmpdir)
+      file.copy(sample_MADRS_score, tmpdir)
+      # Create a vector of the file paths in the temporary directory
+      files_to_zip <- c(file.path(tmpdir, "example_HAMD_sum.csv"),
+                        file.path(tmpdir, "example_MADRS_sum.csv"))
+      # Create the zip file
+      zip::zipr(zipfile = file, files = files_to_zip, root = tmpdir)
+    },
+    contentType = "application/zip"
+  )
+  
+  # Download handler for the combined sample CSV files as a ZIP archive
+  output$downloadSample2 <- downloadHandler(
+    filename = function() {
+      "sample_csv_files.zip"
+    },
+    content = function(file) {
+      # Create a temporary directory to store the sample files
+      tmpdir <- tempdir()
+      # Define the paths to the sample files
+      sample_HAMD_score <- file.path("data", "example_HAMD_item.csv")
+      sample_MADRS_score <- file.path("data", "example_MADRS_item.csv")
+      # Copy the sample files to the temporary directory
+      file.copy(sample_HAMD_score, tmpdir)
+      file.copy(sample_MADRS_score, tmpdir)
+      # Create a vector of the file paths in the temporary directory
+      files_to_zip <- c(file.path(tmpdir, "example_HAMD_item.csv"),
+                        file.path(tmpdir, "example_MADRS_item.csv"))
+      # Create the zip file
+      zip::zipr(zipfile = file, files = files_to_zip, root = tmpdir)
+    },
+    contentType = "application/zip"
   )
 }
 
