@@ -194,7 +194,7 @@ df_long <- df_H2M %>%
                values_to = "RMSE")
 df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Delta", "T30", "Baseline"), ordered = TRUE)
 df_long$Models <- factor(df_long$Models, levels = c("Pharmacotherapy Equipercentile Model", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVM Regression"), ordered = TRUE)
-
+df_long$Models <- factor(df_long$Models, levels = rev(levels(df_long$Models)))
 
 ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
   geom_bar(stat = "identity", position = "dodge") +
@@ -204,7 +204,7 @@ ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
   scale_fill_manual(values = custom_colors) +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(file.path(output_dir, "primary_H2M.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
+ggsave(file.path(output_dir, "primary_H2M_v2.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
 
 df_M2H$Group <- NULL
 df_M2H$Models <- rownames(df_M2H)
@@ -216,6 +216,7 @@ df_long <- df_M2H %>%
                values_to = "RMSE")
 df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Delta", "T30", "Baseline"), ordered = TRUE)
 df_long$Models <- factor(df_long$Models, levels = c("Pharmacotherapy Equipercentile Model", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVM Regression"), ordered = TRUE)
+df_long$Models <- factor(df_long$Models, levels = rev(levels(df_long$Models)))
 
 
 ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
@@ -226,7 +227,7 @@ ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
   scale_fill_manual(values = custom_colors) +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(file.path(output_dir, "primary_M2H.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
+ggsave(file.path(output_dir, "primary_M2H_v2.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
 ```
 
 ## Supplementary Figure 1
@@ -326,6 +327,7 @@ df_long <- df_H2M %>%
                values_to = "RMSE")
 df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Follow-up 3", "Follow-up 2", "Follow-up 1"), ordered = TRUE)
 df_long$Models <- factor(df_long$Models, levels = c("Pharmacotherapy Equipercentile Model", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVM Regression"), ordered = TRUE)
+df_long$Models <- factor(df_long$Models, levels = rev(levels(df_long$Models)))
 
 ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
   geom_bar(stat = "identity", position = "dodge") +
@@ -335,7 +337,7 @@ ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
   scale_fill_manual(values = custom_colors) +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(file.path(output_dir, "folllowup_H2M.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
+ggsave(file.path(output_dir, "folllowup_H2M_v2.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
 
 df_M2H$Group <- NULL
 df_M2H$Models <- rownames(df_M2H)
@@ -347,6 +349,7 @@ df_long <- df_M2H %>%
                values_to = "RMSE")
 df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Follow-up 3", "Follow-up 2", "Follow-up 1"), ordered = TRUE)
 df_long$Models <- factor(df_long$Models, levels = c("Pharmacotherapy Equipercentile Model", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVM Regression"), ordered = TRUE)
+df_long$Models <- factor(df_long$Models, levels = rev(levels(df_long$Models)))
 
 
 ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
@@ -357,7 +360,7 @@ ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
   scale_fill_manual(values = custom_colors) +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(file.path(output_dir, "folllowup_M2H.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
+ggsave(file.path(output_dir, "folllowup_M2H_v2.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
 ```
 
 ## Figure 2: baseline model predicting other time points
@@ -450,7 +453,7 @@ df_long <- df_H2M %>%
                values_to = "RMSE")
 df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Delta", "Follow-up 3", "Follow-up 2", 'Follow-up 1', 'T30'), ordered = TRUE)
 df_long$Models <- factor(df_long$Models, levels = c("rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVM Regression"), ordered = TRUE)
-
+df_long$Models <- factor(df_long$Models, levels = rev(levels(df_long$Models)))
 
 ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
   geom_bar(stat = "identity", position = "dodge") +
@@ -460,7 +463,7 @@ ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
   scale_fill_manual(values = custom_colors) +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(file.path(output_dir, "baseline_model_H2M.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
+ggsave(file.path(output_dir, "baseline_model_H2M_v2.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
 
 df_M2H$Group <- NULL
 df_M2H$Models <- rownames(df_M2H)
@@ -472,7 +475,7 @@ df_long <- df_M2H %>%
                values_to = "RMSE")
 df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Delta", "Follow-up 3", "Follow-up 2", 'Follow-up 1', 'T30'), ordered = TRUE)
 df_long$Models <- factor(df_long$Models, levels = c("rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVM Regression"), ordered = TRUE)
-
+df_long$Models <- factor(df_long$Models, levels = rev(levels(df_long$Models)))
 
 ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
   geom_bar(stat = "identity", position = "dodge") +
@@ -482,7 +485,7 @@ ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
   scale_fill_manual(values = custom_colors) +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(file.path(output_dir, "baseline_model_M2H.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
+ggsave(file.path(output_dir, "baseline_model_M2H_v2.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
 ```
 
 ## Trajectory plot
@@ -577,6 +580,8 @@ df_long <- df_H2M %>%
                names_to = "Time point",
                values_to = "RMSE")
 df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Delta", "T30", "Baseline"), ordered = TRUE)
+df_long$Models <- factor(df_long$Models, levels = c("rTMS Equipercentile Model", "SVM Regression", "SVM Regression Item"), ordered = TRUE)
+df_long$Models <- factor(df_long$Models, levels = rev(levels(df_long$Models)))
 
 
 ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
@@ -587,7 +592,7 @@ ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
   scale_fill_manual(values = custom_colors) +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(file.path(output_dir, "Item_compare_H2M.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
+ggsave(file.path(output_dir, "Item_compare_H2M_v2.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
 
 df_M2H$Group <- NULL
 df_M2H$Models <- rownames(df_M2H)
@@ -598,6 +603,8 @@ df_long <- df_M2H %>%
                names_to = "Time point",
                values_to = "RMSE")
 df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Delta", "T30", "Baseline"), ordered = TRUE)
+df_long$Models <- factor(df_long$Models, levels = c("rTMS Equipercentile Model", "SVM Regression", "SVM Regression Item"), ordered = TRUE)
+df_long$Models <- factor(df_long$Models, levels = rev(levels(df_long$Models)))
 
 
 ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
@@ -608,7 +615,7 @@ ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
   scale_fill_manual(values = custom_colors) +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(file.path(output_dir, "Item_compare_M2H.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
+ggsave(file.path(output_dir, "Item_compare_M2H_v2.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
 ```
 
 ## Showing results with vs. without covs
@@ -666,6 +673,8 @@ df_long <- df_H2M %>%
                names_to = "Time point",
                values_to = "RMSE")
 df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Delta", "T30", "Baseline"), ordered = TRUE)
+df_long$Models <- factor(df_long$Models, levels = c("SVM Regression", "SVM Regression Cov", "SVM Regression Item", "SVM Regression Item Cov"), ordered = TRUE)
+df_long$Models <- factor(df_long$Models, levels = rev(levels(df_long$Models)))
 
 
 ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
@@ -676,7 +685,7 @@ ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
   scale_fill_manual(values = custom_colors) +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(file.path(output_dir, "Cov_compare_H2M.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
+ggsave(file.path(output_dir, "Cov_compare_H2M_v2.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
 ```
 
 ## Table 1

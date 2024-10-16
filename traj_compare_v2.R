@@ -284,7 +284,7 @@ df_summary_b$Time <- factor(df_summary_b$Time, levels = c("Baseline","T30","Foll
 
 #plot timed model results
 ggplot(df_summary, aes(x= Time, y=Value, group=Group, color=Group)) + 
-  geom_line(size = 1) + xlab("Time") + ylab("HAMD score") +
+  geom_line(size = 1) + xlab("Time") + ylab("HRSD score") +
   geom_point(size = 3) +
   scale_y_continuous(limits = c(10, 25), breaks = seq(10, 25, by = 5)) +
   scale_color_manual(values=custom_colors) +
@@ -295,7 +295,7 @@ ggsave(file.path(output_dir, "timed_model_MADRS2HAMD_v2.png"), width = 8, height
 
 # plot baseline models results
 ggplot(df_summary_b, aes(x= Time, y=Value, group=Group, color=Group)) + 
-  geom_line(size = 1) + xlab("Time") + ylab("HAMD score") +
+  geom_line(size = 1) + xlab("Time") + ylab("HRSD score") +
   geom_point(size = 3) +
   scale_y_continuous(limits = c(10, 25), breaks = seq(10, 25, by = 5)) +
   scale_color_manual(values=custom_colors) +
