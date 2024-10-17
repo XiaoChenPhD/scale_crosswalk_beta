@@ -40,7 +40,7 @@ benchmarks_HAMD2MADRS <- df_rmse
 load(file.path(work_dir, "benchmarks_M2H_ALL_carryover.RData"))
 benchmarks_MADRS2HAMD <- df_rmse
 
-custom_colors <- c("Pharmacotherapy Equipercentile Model" = "#6C946F", "Linear Regression" = "#D4BDAC", "rTMS Equipercentile Model" = "#FFA823", "RF Regression" = "#DC0083", "SVM Regression" = "#536493", "SVM Regression Item" = "#8CB9BD", "SVM Regression Cov" = "#E7F0DC", "SVM Regression Item Cov" = "#B6C7AA")
+custom_colors <- c("Pharmacotherapy Equipercentile Model" = "#6C946F", "Linear Regression" = "#D4BDAC", "rTMS Equipercentile Model" = "#FFA823", "RF Regression" = "#DC0083", "SVR" = "#536493", "SVR Item" = "#8CB9BD", "SVR Cov" = "#E7F0DC", "SVR Item Cov" = "#B6C7AA")
 ```
 
 ## Not used: Figure 1 heatmap for main findings
@@ -54,7 +54,7 @@ library(pheatmap)
 
 data_matrix <- matrix(0, nrow = 5, ncol = 3)
 colnames(data_matrix) <- c("Baseline", "T30", "Delta")
-rownames(data_matrix) <- c("Pharmacotherapy Equipercentile Model", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVM Regression")
+rownames(data_matrix) <- c("Pharmacotherapy Equipercentile Model", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVR")
 
 temp <- 0
 for (i in c(1,2,10)){
@@ -87,7 +87,7 @@ MADRS2HAMD
 ```{r heatmap madrs2hamd}
 data_matrix <- matrix(0, nrow = 5, ncol = 3)
 colnames(data_matrix) <- c("Baseline", "T30", "Delta")
-rownames(data_matrix) <- c("Pharmacotherapy Equipercentile Model", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVM Regression")
+rownames(data_matrix) <- c("Pharmacotherapy Equipercentile Model", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVR")
 
 temp <- 0
 for (i in c(1,2,10)){
@@ -193,8 +193,8 @@ df_long <- df_H2M %>%
                names_to = "Time point",
                values_to = "RMSE")
 df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Delta", "T30", "Baseline"), ordered = TRUE)
-df_long$Models <- factor(df_long$Models, levels = c("Pharmacotherapy Equipercentile Model", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVM Regression"), ordered = TRUE)
-df_long$Models <- factor(df_long$Models, levels = rev(levels(df_long$Models)))
+df_long$Models <- factor(df_long$Models, levels = c("Pharmacotherapy Equipercentile Model", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVR"), ordered = TRUE)
+# df_long$Models <- factor(df_long$Models, levels = rev(levels(df_long$Models)))
 
 ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
   geom_bar(stat = "identity", position = "dodge") +
@@ -204,7 +204,7 @@ ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
   scale_fill_manual(values = custom_colors) +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(file.path(output_dir, "primary_H2M_v2.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
+ggsave(file.path(output_dir, "primary_H2M_legend.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
 
 df_M2H$Group <- NULL
 df_M2H$Models <- rownames(df_M2H)
@@ -215,7 +215,7 @@ df_long <- df_M2H %>%
                names_to = "Time point",
                values_to = "RMSE")
 df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Delta", "T30", "Baseline"), ordered = TRUE)
-df_long$Models <- factor(df_long$Models, levels = c("Pharmacotherapy Equipercentile Model", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVM Regression"), ordered = TRUE)
+df_long$Models <- factor(df_long$Models, levels = c("Pharmacotherapy Equipercentile Model", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVR"), ordered = TRUE)
 df_long$Models <- factor(df_long$Models, levels = rev(levels(df_long$Models)))
 
 
@@ -240,7 +240,7 @@ library(pheatmap)
 
 data_matrix <- matrix(0, nrow = 5, ncol = 3)
 colnames(data_matrix) <- c("Follow-up 1", "Follow-up 2", "Follow-up 3")
-rownames(data_matrix) <- c("Pharmacotherapy Equipercentile Model", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVM Regression")
+rownames(data_matrix) <- c("Pharmacotherapy Equipercentile Model", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVR")
 
 temp <- 0
 for (i in c(4,6,8)){
@@ -275,7 +275,7 @@ library(pheatmap)
 
 data_matrix <- matrix(0, nrow = 5, ncol = 3)
 colnames(data_matrix) <- c("Follow-up 1", "Follow-up 2", "Follow-up 3")
-rownames(data_matrix) <- c("Pharmacotherapy Equipercentile Model", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVM Regression")
+rownames(data_matrix) <- c("Pharmacotherapy Equipercentile Model", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVR")
 
 temp <- 0
 for (i in c(4,6,8)){
@@ -326,8 +326,8 @@ df_long <- df_H2M %>%
                names_to = "Time point",
                values_to = "RMSE")
 df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Follow-up 3", "Follow-up 2", "Follow-up 1"), ordered = TRUE)
-df_long$Models <- factor(df_long$Models, levels = c("Pharmacotherapy Equipercentile Model", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVM Regression"), ordered = TRUE)
-df_long$Models <- factor(df_long$Models, levels = rev(levels(df_long$Models)))
+df_long$Models <- factor(df_long$Models, levels = c("Pharmacotherapy Equipercentile Model", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVR"), ordered = TRUE)
+# df_long$Models <- factor(df_long$Models, levels = rev(levels(df_long$Models)))
 
 ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
   geom_bar(stat = "identity", position = "dodge") +
@@ -337,7 +337,7 @@ ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
   scale_fill_manual(values = custom_colors) +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(file.path(output_dir, "folllowup_H2M_v2.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
+ggsave(file.path(output_dir, "folllowup_H2M_legend.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
 
 df_M2H$Group <- NULL
 df_M2H$Models <- rownames(df_M2H)
@@ -370,7 +370,7 @@ HAMD 2 MADRS
 ```{r}
 data_matrix <- matrix(0, nrow = 4, ncol = 5)
 colnames(data_matrix) <- c("T30", "Follow-up 1", "Follow-up 2", "Follow-up 3", "Delta")
-rownames(data_matrix) <- c("rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVM Regression")
+rownames(data_matrix) <- c("rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVR")
 
 temp <- 0
 for (i in c(3,5,7,9,11)){
@@ -403,7 +403,7 @@ MADRS to HAMD
 ```{r}
 data_matrix <- matrix(0, nrow = 4, ncol = 5)
 colnames(data_matrix) <- c("T30", "Follow-up 1", "Follow-up 2", "Follow-up 3", "Delta")
-rownames(data_matrix) <- c("rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVM Regression")
+rownames(data_matrix) <- c("rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVR")
 
 temp <- 0
 for (i in c(3,5,7,9,11)){
@@ -452,8 +452,8 @@ df_long <- df_H2M %>%
                names_to = "Time point",
                values_to = "RMSE")
 df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Delta", "Follow-up 3", "Follow-up 2", 'Follow-up 1', 'T30'), ordered = TRUE)
-df_long$Models <- factor(df_long$Models, levels = c("rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVM Regression"), ordered = TRUE)
-df_long$Models <- factor(df_long$Models, levels = rev(levels(df_long$Models)))
+df_long$Models <- factor(df_long$Models, levels = c("rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVR"), ordered = TRUE)
+# df_long$Models <- factor(df_long$Models, levels = rev(levels(df_long$Models)))
 
 ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
   geom_bar(stat = "identity", position = "dodge") +
@@ -463,7 +463,7 @@ ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
   scale_fill_manual(values = custom_colors) +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(file.path(output_dir, "baseline_model_H2M_v2.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
+ggsave(file.path(output_dir, "baseline_model_legend.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
 
 df_M2H$Group <- NULL
 df_M2H$Models <- rownames(df_M2H)
@@ -497,7 +497,7 @@ this figure was plotted using \~/traj_compare_v2.R
 ```{r HAMD to MADRS}
 data_matrix <- matrix(0, nrow = 3, ncol = 3)
 colnames(data_matrix) <- c("Baseline", "T30", "Delta")
-rownames(data_matrix) <- c("rTMS Equipercentile Model", "SVM Regression", "SVM Regression Item")
+rownames(data_matrix) <- c("rTMS Equipercentile Model", "SVR", "SVR Item")
 
 temp <- 0
 for (i in c(1,2,10)){
@@ -530,7 +530,7 @@ MADRS to HAMD
 ```{r MADRS to HAMD}
 data_matrix <- matrix(0, nrow = 3, ncol = 3)
 colnames(data_matrix) <- c("Baseline", "T30", "Delta")
-rownames(data_matrix) <- c("rTMS Equipercentile Model", "SVM Regression", "SVM Regression Item")
+rownames(data_matrix) <- c("rTMS Equipercentile Model", "SVR", "SVR Item")
 
 temp <- 0
 for (i in c(1,2,10)){
@@ -580,8 +580,8 @@ df_long <- df_H2M %>%
                names_to = "Time point",
                values_to = "RMSE")
 df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Delta", "T30", "Baseline"), ordered = TRUE)
-df_long$Models <- factor(df_long$Models, levels = c("rTMS Equipercentile Model", "SVM Regression", "SVM Regression Item"), ordered = TRUE)
-df_long$Models <- factor(df_long$Models, levels = rev(levels(df_long$Models)))
+df_long$Models <- factor(df_long$Models, levels = c("rTMS Equipercentile Model", "SVR", "SVR Item"), ordered = TRUE)
+# df_long$Models <- factor(df_long$Models, levels = rev(levels(df_long$Models)))
 
 
 ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
@@ -592,7 +592,7 @@ ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
   scale_fill_manual(values = custom_colors) +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(file.path(output_dir, "Item_compare_H2M_v2.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
+ggsave(file.path(output_dir, "Item_compare_legend.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
 
 df_M2H$Group <- NULL
 df_M2H$Models <- rownames(df_M2H)
@@ -624,7 +624,7 @@ ggsave(file.path(output_dir, "Item_compare_M2H_v2.png"), height = my_height, wid
 load(file.path(work_dir, "benchmarks_covariates.RData"))
 data_matrix <- matrix(0, nrow = 4, ncol = 3)
 colnames(data_matrix) <- c("Baseline", "T30", "Delta")
-rownames(data_matrix) <- c("SVM Regression", "SVM Regression Cov", "SVM Regression Item", "SVM Regression Item Cov")
+rownames(data_matrix) <- c("SVR", "SVR Cov", "SVR Item", "SVR Item Cov")
 
 temp <- 0
 for (i in c(1,2,10)){
@@ -673,8 +673,8 @@ df_long <- df_H2M %>%
                names_to = "Time point",
                values_to = "RMSE")
 df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Delta", "T30", "Baseline"), ordered = TRUE)
-df_long$Models <- factor(df_long$Models, levels = c("SVM Regression", "SVM Regression Cov", "SVM Regression Item", "SVM Regression Item Cov"), ordered = TRUE)
-df_long$Models <- factor(df_long$Models, levels = rev(levels(df_long$Models)))
+df_long$Models <- factor(df_long$Models, levels = c("SVR", "SVR Cov", "SVR Item", "SVR Item Cov"), ordered = TRUE)
+#df_long$Models <- factor(df_long$Models, levels = rev(levels(df_long$Models)))
 
 
 ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
@@ -685,7 +685,7 @@ ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
   scale_fill_manual(values = custom_colors) +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(file.path(output_dir, "Cov_compare_H2M_v2.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
+ggsave(file.path(output_dir, "Cov_compare_legend.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
 ```
 
 ## Table 1

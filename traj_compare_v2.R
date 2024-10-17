@@ -36,18 +36,18 @@ work_dir <- "/Users/ChenXiao/Library/CloudStorage/OneDrive-Personal/Documents/sc
 output_dir <- "/Users/ChenXiao/Library/CloudStorage/OneDrive-Personal/Documents/scale_crosswalk/all_carryover_term_updated"
 column_names <- c('subj_id', 
                   'Real_Baseline', 'Pharmacotherapy Equipercentile Model_Baseline', 'rTMS Equipercentile Model_Baseline', 
-                  'Linear Regression_Baseline', 'RF Regression_Baseline','SVM Regression_Baseline',
+                  'Linear Regression_Baseline', 'RF Regression_Baseline','SVR_Baseline',
                   'Real_T30', 'Pharmacotherapy Equipercentile Model_T30', 'rTMS Equipercentile Model_T30', 
-                  'Linear Regression_T30', 'RF Regression_T30','SVM Regression_T30', 
+                  'Linear Regression_T30', 'RF Regression_T30','SVR_T30', 
                   'Real_Follow-up 1', 'Pharmacotherapy Equipercentile Model_Follow-up 1', 'rTMS Equipercentile Model_Follow-up 1', 
-                  'Linear Regression_Follow-up 1', 'RF Regression_Follow-up 1', 'SVM Regression_Follow-up 1',
+                  'Linear Regression_Follow-up 1', 'RF Regression_Follow-up 1', 'SVR_Follow-up 1',
                   'Real_Follow-up 2', 'Pharmacotherapy Equipercentile Model_Follow-up 2', 'rTMS Equipercentile Model_Follow-up 2', 
-                  'Linear Regression_Follow-up 2', 'RF Regression_Follow-up 2', 'SVM Regression_Follow-up 2',
+                  'Linear Regression_Follow-up 2', 'RF Regression_Follow-up 2', 'SVR_Follow-up 2',
                   'Real_Follow-up 3', 'Pharmacotherapy Equipercentile Model_Follow-up 3', 'rTMS Equipercentile Model_Follow-up 3', 
-                  'Linear Regression_Follow-up 3', 'RF Regression_Follow-up 3', 'SVM Regression_Follow-up 3')
+                  'Linear Regression_Follow-up 3', 'RF Regression_Follow-up 3', 'SVR_Follow-up 3')
 col_num = 6 # the column number at each time point
 custom_colors <- c("Pharmacotherapy Equipercentile Model" = "#6C946F", "Linear Regression" = "#D4BDAC", "rTMS Equipercentile Model" = "#FFA823", 
-                   "RF Regression" = "#DC0083", "SVM Regression" = "#536493",
+                   "RF Regression" = "#DC0083", "SVR" = "#536493",
                    "Real" = "#3AA6B9")
 
 # load the data at time point 1 to get the subj list
@@ -166,7 +166,7 @@ ggplot(df_summary, aes(x= Time, y=Value, group=Group, color=Group)) +
   theme_classic(base_size = 20) + 
   theme(legend.text = element_text(size = 12), axis.text.x = element_text(angle = 45, hjust = 0.95))
 
-ggsave(file.path(output_dir, "timed_model_v2.png"), 
+ggsave(file.path(output_dir, "timed_model_legend.png"), 
        width = 8, height = 6, dpi = 1200)
 
 # plot baseline models results
