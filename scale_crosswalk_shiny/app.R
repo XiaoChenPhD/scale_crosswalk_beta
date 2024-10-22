@@ -1,8 +1,8 @@
-# A Shiny App to link HAMD-17 and MADRS
+# A Shiny App to link HRSD and MADRS
 # Users can either provide sum score or item score
 # Upload a .csv file with the first row as the header. No requirement for header itself.
-# sum score: one column of HAMD scores or MADRS socres
-# item score: 17 columns of HAMD 1-17 item scores or 10 columns of MADRS 1-10 item score
+# sum score: one column of HRSD scores or MADRS socres
+# item score: 17 columns of HRSD 1-17 item scores or 10 columns of MADRS 1-10 item score
 # models trained at different time points are also provided
 # baseline: score before treatments started
 # 30 d: score after receiving 30 days of treatment
@@ -24,7 +24,7 @@ library(randomForest)
 
 # Define UI for the application
 ui <- fluidPage(
-  titlePanel("Linking HAMD-17 and MADRS"),
+  titlePanel("Linking HRSD and MADRS"),
   sidebarLayout(
     sidebarPanel(
       tabsetPanel(
@@ -37,7 +37,7 @@ ui <- fluidPage(
                  tags$hr(),
                  downloadButton("downloadSample1", "Download Sample CSV Files"),
                  tags$hr(),
-                 radioButtons("predictor1", "Select Input Variable:", choices = c("HAMD-17 to MADRS", "MADRS to HAMD-17")),
+                 radioButtons("predictor1", "Select Input Variable:", choices = c("HRSD to MADRS", "MADRS to HRSD")),
                  radioButtons("model_type1", "Select Model Type:", 
                               choices = list("baseline" = 1, 
                                              "30 d" = 2, 
@@ -58,7 +58,7 @@ ui <- fluidPage(
                  tags$hr(),
                  downloadButton("downloadSample2", "Download Sample CSV Files"),
                  tags$hr(),
-                 radioButtons("predictor2", "Select Input Variable:", choices = c("HAMD-17 to MADRS", "MADRS to HAMD-17")),
+                 radioButtons("predictor2", "Select Input Variable:", choices = c("HRSD to MADRS", "MADRS to HRSD")),
                  radioButtons("model_type2", "Select Model Type:", 
                               choices = list("baseline" = 1, 
                                              "30 d" = 2, 
@@ -67,7 +67,7 @@ ui <- fluidPage(
                                              "followup 3" = 5, 
                                              "delta" = 6)),
                  selectInput("models2", "Select Model:", 
-                             choices = c("Linear Regression", "Random Forest Regression", "SVM Regression")),
+                             choices = c("Linear Regression", "Random Forest Regression", "SVR")),
                  actionButton("runModel2", "Run Model"),
                  downloadButton("downloadData2", "Download Predictions")
         )
@@ -87,9 +87,9 @@ server <- function(input, output, session) {
   observeEvent(input$model_type1, {
     updateSelectInput(session, "models1",
                       choices = if (input$model_type1 == 1 || input$model_type1 == 6) {
-                        c("Leucht_2018", "Percentile", "Linear Regression", "Random Forest Regression", "SVM Regression")
+                        c("Leucht_2018", "Percentile", "Linear Regression", "Random Forest Regression", "SVR")
                       } else {
-                        c("Percentile", "Linear Regression", "Random Forest Regression", "SVM Regression")
+                        c("Percentile", "Linear Regression", "Random Forest Regression", "SVR")
                       })
   })
   
@@ -131,14 +131,14 @@ server <- function(input, output, session) {
     } else {
       conversion_table <- read.xlsx(file.path("data", "coversion_table_Leucht2018.xlsx"))
     }
-    if (input$predictor1 == "HAMD-17 to MADRS") {
+    if (input$predictor1 == "HRSD to MADRS") {
       load(file.path("data", paste("data_model_ALL_carryover_", as.character(flag), ".RData", sep = "")))
-    } else if (input$predictor1 == "MADRS to HAMD-17") {
+    } else if (input$predictor1 == "MADRS to HRSD") {
       load(file.path("data", paste("data_model_M2H_ALL_carryover_", as.character(flag), ".RData", sep = "")))
     }
     
     # use different models to predict
-    if (input$predictor1 == "HAMD-17 to MADRS") {
+    if (input$predictor1 == "HRSD to MADRS") {
       if (input$models1 == "Leucht_2018") {
         responses <- sapply(predictor_data, function(value) {
           if (flag == 6){
@@ -168,11 +168,11 @@ server <- function(input, output, session) {
      } else if (input$models1 == "Random Forest Regression"){
        df_predictor <- data.frame(hrsd_total = predictor_data)
        responses <- predict(model_rf, newdata = df_predictor)
-     } else if (input$models1 == "SVM Regression"){
+     } else if (input$models1 == "SVR"){
        df_predictor <- data.frame(hrsd_total = predictor_data)
        responses <- predict(model_svm, newdata = df_predictor)
      } ###################### MADRS to HAMD #############################
-    } else if (input$predictor1 == "MADRS to HAMD-17") {
+    } else if (input$predictor1 == "MADRS to HRSD") {
       if (input$models1 == "Leucht_2018") {
         responses <- sapply(predictor_data, function(value) {
           if (flag == 6){
@@ -202,7 +202,7 @@ server <- function(input, output, session) {
       } else if (input$models1 == "Random Forest Regression"){
         df_predictor <- data.frame(madrs_total = predictor_data)
         responses <- predict(model_rf, newdata = df_predictor)
-      } else if (input$models1 == "SVM Regression"){
+      } else if (input$models1 == "SVR"){
         df_predictor <- data.frame(hrsd_total = predictor_data)
         responses <- predict(model_svm, newdata = df_predictor)
       }
@@ -219,13 +219,13 @@ server <- function(input, output, session) {
     
     # load the model according to selection
     flag <- input$model_type2
-    if (input$predictor2 == "HAMD-17 to MADRS") {
+    if (input$predictor2 == "HRSD to MADRS") {
       load(file.path("data", paste("data_model_", as.character(flag), ".RData", sep = "")))
-    } else if (input$predictor2 == "MADRS to HAMD-17") {
+    } else if (input$predictor2 == "MADRS to HRSD") {
       load(file.path("data", paste("data_MADRS2HAMD_model_", as.character(flag), ".RData", sep = "")))
     }
     
-    if (input$predictor2 == "HAMD-17 to MADRS") {
+    if (input$predictor2 == "HRSD to MADRS") {
       names(predictor_data) <- c("hrsd1s", "hrsd2s", "hrsd3s", "hrsd4s", "hrsd5s", "hrsd6s", "hrsd7s",
                                  "hrsd8s", "hrsd9s", "hrsd10s", "hrsd11s", "hrsd12s", "hrsd13s", "hrsd14s",
                                  "hrsd15s", "hrsd16s", "hrsd17s")
@@ -233,17 +233,17 @@ server <- function(input, output, session) {
         responses <- predict(model_lm_item, newdata = predictor_data)
       } else if (input$models2 == "Random Forest Regression") {
         responses <- predict(model_rf_item, newdata = predictor_data)
-      } else if (input$models2 == "SVM Regression") {
+      } else if (input$models2 == "SVR") {
         responses <- predict(model_svm_item, newdata = predictor_data)
       }
-    } else if (input$predictor2 == "MADRS to HAMD-17") {
+    } else if (input$predictor2 == "MADRS to HRSD") {
       names(predictor_data) <- c("madrs1", "madrs2", "madrs3", "madrs4", "madrs5",
                                  "madrs6", "madrs7", "madrs8", "madrs9", "madrs10")
       if (input$models2 == "Linear Regression") {
         responses <- predict(model_lm_item, newdata = predictor_data)
       } else if (input$models2 == "Random Forest Regression") {
         responses <- predict(model_rf_item, newdata = predictor_data)
-      } else if (input$models2 == "SVM Regression") {
+      } else if (input$models2 == "SVR") {
         responses <- predict(model_svm_item, newdata = predictor_data)
       }
     }
