@@ -6,7 +6,7 @@
 # models trained at different time points are also provided
 # baseline: score before treatments started
 # 30 d: score after receiving 30 days of treatment
-# follow up 1-3: scores at differet followup time points after finishing the treatment
+# follow up 1-3: scores at different followup time points after finishing the treatment
 # delta: baseline score minus score at T30
 #
 # Xiao Chen
@@ -185,9 +185,11 @@ server <- function(input, output, session) {
               return(conversion_table$HAMD[match_value])
             }
           } else{
-            if (value > 0 & value < 3){
+            if (value > 0 & value < 3){ # the original table omitted MADRS = 0-2
               return(2)
-            }else{
+            } else if (value > 53){
+              return(40)
+            } else{
               match_value <- match(value, conversion_table$MADRS)
               return(conversion_table$HAMD[match_value])
             }
