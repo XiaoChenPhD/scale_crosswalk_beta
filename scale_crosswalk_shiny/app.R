@@ -6,7 +6,7 @@
 # models trained at different time points are also provided
 # baseline: score before treatments started
 # 30 d: score after receiving 30 days of treatment
-# follow up 1-3: scores at different followup time points after finishing the treatment
+# follow up 1-3: scores at different follow-up time points after finishing the treatment
 # delta: baseline score minus score at T30
 #
 # Xiao Chen
@@ -41,9 +41,9 @@ ui <- fluidPage(
                  radioButtons("model_type1", "Select Model Type:", 
                               choices = list("baseline" = 1, 
                                              "30 d" = 2, 
-                                             "followup 1" = 3, 
-                                             "followup 2" = 4, 
-                                             "followup 3" = 5, 
+                                             "follow-up 1" = 3, 
+                                             "follow-up 2" = 4, 
+                                             "follow-up 3" = 5, 
                                              "delta" = 6)),
                  selectInput("models1", "Select Model:", choices = NULL),
                  actionButton("runModel1", "Run Model"),
@@ -62,9 +62,9 @@ ui <- fluidPage(
                  radioButtons("model_type2", "Select Model Type:", 
                               choices = list("baseline" = 1, 
                                              "30 d" = 2, 
-                                             "followup 1" = 3, 
-                                             "followup 2" = 4, 
-                                             "followup 3" = 5, 
+                                             "follow-up 1" = 3, 
+                                             "follow-up 2" = 4, 
+                                             "follow-up 3" = 5, 
                                              "delta" = 6)),
                  selectInput("models2", "Select Model:", 
                              choices = c("Linear Regression", "Random Forest Regression", "SVR")),
@@ -87,9 +87,9 @@ server <- function(input, output, session) {
   observeEvent(input$model_type1, {
     updateSelectInput(session, "models1",
                       choices = if (input$model_type1 == 1 || input$model_type1 == 6) {
-                        c("Leucht_2018", "Percentile", "Linear Regression", "Random Forest Regression", "SVR")
+                        c("Pharmacotherapy Equipercentile Model", "rTMS Equipercentile Model", "Linear Regression", "Random Forest Regression", "SVR")
                       } else {
-                        c("Percentile", "Linear Regression", "Random Forest Regression", "SVR")
+                        c("rTMS Equipercentile Model", "Linear Regression", "Random Forest Regression", "SVR")
                       })
   })
   
@@ -139,11 +139,13 @@ server <- function(input, output, session) {
     
     # use different models to predict
     if (input$predictor1 == "HRSD to MADRS") {
-      if (input$models1 == "Leucht_2018") {
+      if (input$models1 == "Pharmacotherapy Equipercentile Model") {
         responses <- sapply(predictor_data, function(value) {
           if (flag == 6){
             if (value < -5) {
               return(-8)
+            } else if (value > 27){
+              return(37)
             } else {
               match_value <- match(value, conversion_table$HAMD)
               return(conversion_table$MADRS[match_value])
@@ -159,7 +161,7 @@ server <- function(input, output, session) {
             }
           }
         })
-      } else if (input$models1 == "Percentile") {
+      } else if (input$models1 == "rTMS Equipercentile Model") {
         # Placeholder for Percentile model
         responses <- equate(predictor_data, y = equating_result)
      } else if (input$models1 == "Linear Regression") {
@@ -173,7 +175,7 @@ server <- function(input, output, session) {
        responses <- predict(model_svm, newdata = df_predictor)
      } ###################### MADRS to HAMD #############################
     } else if (input$predictor1 == "MADRS to HRSD") {
-      if (input$models1 == "Leucht_2018") {
+      if (input$models1 == "Pharmacotherapy Equipercentile Model") {
         responses <- sapply(predictor_data, function(value) {
           if (flag == 6){
             if(value < -8){
@@ -195,7 +197,7 @@ server <- function(input, output, session) {
             }
           }
         })
-      } else if (input$models1 == "Percentile") {
+      } else if (input$models1 == "rTMS Equipercentile Model") {
         # Placeholder for Percentile model
         responses <- equate(predictor_data, y = equating_result)
       } else if (input$models1 == "Linear Regression") {
@@ -222,9 +224,9 @@ server <- function(input, output, session) {
     # load the model according to selection
     flag <- input$model_type2
     if (input$predictor2 == "HRSD to MADRS") {
-      load(file.path("data", paste("data_model_", as.character(flag), ".RData", sep = "")))
+      load(file.path("data", paste("data_model_ALL_carryover_", as.character(flag), ".RData", sep = "")))
     } else if (input$predictor2 == "MADRS to HRSD") {
-      load(file.path("data", paste("data_MADRS2HAMD_model_", as.character(flag), ".RData", sep = "")))
+      load(file.path("data", paste("data_model_M2H_ALL_carryover_", as.character(flag), ".RData", sep = "")))
     }
     
     if (input$predictor2 == "HRSD to MADRS") {
@@ -292,13 +294,13 @@ server <- function(input, output, session) {
       # Create a temporary directory to store the sample files
       tmpdir <- tempdir()
       # Define the paths to the sample files
-      sample_HAMD_score <- file.path("data", "example_HAMD_sum.csv")
+      sample_HAMD_score <- file.path("data", "example_HRSD_sum.csv")
       sample_MADRS_score <- file.path("data", "example_MADRS_sum.csv")
       # Copy the sample files to the temporary directory
       file.copy(sample_HAMD_score, tmpdir)
       file.copy(sample_MADRS_score, tmpdir)
       # Create a vector of the file paths in the temporary directory
-      files_to_zip <- c(file.path(tmpdir, "example_HAMD_sum.csv"),
+      files_to_zip <- c(file.path(tmpdir, "example_HRSD_sum.csv"),
                         file.path(tmpdir, "example_MADRS_sum.csv"))
       # Create the zip file
       zip::zipr(zipfile = file, files = files_to_zip, root = tmpdir)
@@ -315,13 +317,13 @@ server <- function(input, output, session) {
       # Create a temporary directory to store the sample files
       tmpdir <- tempdir()
       # Define the paths to the sample files
-      sample_HAMD_score <- file.path("data", "example_HAMD_item.csv")
+      sample_HAMD_score <- file.path("data", "example_HRSD_item.csv")
       sample_MADRS_score <- file.path("data", "example_MADRS_item.csv")
       # Copy the sample files to the temporary directory
       file.copy(sample_HAMD_score, tmpdir)
       file.copy(sample_MADRS_score, tmpdir)
       # Create a vector of the file paths in the temporary directory
-      files_to_zip <- c(file.path(tmpdir, "example_HAMD_item.csv"),
+      files_to_zip <- c(file.path(tmpdir, "example_HRSD_item.csv"),
                         file.path(tmpdir, "example_MADRS_item.csv"))
       # Create the zip file
       zip::zipr(zipfile = file, files = files_to_zip, root = tmpdir)

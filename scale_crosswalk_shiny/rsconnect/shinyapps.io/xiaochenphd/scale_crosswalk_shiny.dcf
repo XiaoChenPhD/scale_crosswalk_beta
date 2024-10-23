@@ -4,7 +4,7 @@ username: xiaochenphd
 account: xiaochenphd
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
-appId: 12856203
-bundleId: 9155271
+appId: 13111232
+bundleId: 9261104
 url: https://xiaochenphd.shinyapps.io/scale_crosswalk_shiny/
 version: 1
