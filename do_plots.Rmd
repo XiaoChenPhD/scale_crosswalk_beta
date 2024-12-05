@@ -24,7 +24,7 @@ library(readxl)
 library(dplyr)
 
 work_dir <- "/Users/ChenXiao/Library/CloudStorage/OneDrive-Personal/Documents/scale_crosswalk/Analysis"
-output_dir <- "/Users/ChenXiao/Library/CloudStorage/OneDrive-Personal/Documents/scale_crosswalk/all_carryover_term_updated"
+output_dir <- "/Users/ChenXiao/Library/CloudStorage/OneDrive-Personal/Documents/scale_crosswalk/plots_MR"
 
 # Check if the path exists
 if (!file.exists(output_dir)) {
@@ -35,9 +35,9 @@ if (!file.exists(output_dir)) {
   message("Directory already exists.")
 }
 
-load(file.path(work_dir, "benchmarks_ALL_carryover.RData"))
+load(file.path(work_dir, "benchmarks_ALL_carryover241205.RData"))
 benchmarks_HAMD2MADRS <- df_rmse
-load(file.path(work_dir, "benchmarks_M2H_ALL_carryover.RData"))
+load(file.path(work_dir, "benchmarks_M2H_ALL_carryover241205.RData"))
 benchmarks_MADRS2HAMD <- df_rmse
 
 custom_colors <- c("Pharmacotherapy Equipercentile Model" = "#6C946F", "Linear Regression" = "#D4BDAC", "rTMS Equipercentile Model" = "#FFA823", "RF Regression" = "#DC0083", "SVR" = "#536493", "SVR Item" = "#8CB9BD", "SVR Cov" = "#E7F0DC", "SVR Item Cov" = "#B6C7AA")
@@ -437,7 +437,8 @@ df_M2H$Group <- "MADRS to HAMD"
 library(tidyverse)
 
 df_full <- rbind(df_H2M,df_M2H)
-selected_columns = df_full[, c('T30', 'Follow-up 1', 'Follow-up 2', 'Follow-up 3', 'Delta')]
+# selected_columns = df_full[, c('T30', 'Follow-up 1', 'Follow-up 2', 'Follow-up 3', 'Delta')]
+selected_columns = df_full[, c('Follow-up 1', 'Follow-up 2', 'Follow-up 3')]
 max_value <-  max(selected_columns)
 
 my_height <-  8
@@ -447,13 +448,20 @@ df_H2M$Group <- NULL
 df_H2M$Models <- rownames(df_H2M)
 rownames(df_H2M) <- 1:nrow(df_H2M)
 
+# df_long <- df_H2M %>% 
+#   pivot_longer(cols = c('T30', 'Follow-up 1', 'Follow-up 2', 'Follow-up 3', 'Delta'),
+#                names_to = "Time point",
+#                values_to = "RMSE")
+# df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Delta", "Follow-up 3", "Follow-up 2", 'Follow-up 1', 'T30'), ordered = TRUE)
+
 df_long <- df_H2M %>% 
-  pivot_longer(cols = c('T30', 'Follow-up 1', 'Follow-up 2', 'Follow-up 3', 'Delta'),
+  pivot_longer(cols = c('Follow-up 1', 'Follow-up 2', 'Follow-up 3'),
                names_to = "Time point",
                values_to = "RMSE")
-df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Delta", "Follow-up 3", "Follow-up 2", 'Follow-up 1', 'T30'), ordered = TRUE)
+df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Follow-up 3", "Follow-up 2", 'Follow-up 1'), ordered = TRUE)
+
 df_long$Models <- factor(df_long$Models, levels = c("rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVR"), ordered = TRUE)
-# df_long$Models <- factor(df_long$Models, levels = rev(levels(df_long$Models)))
+df_long$Models <- factor(df_long$Models, levels = rev(levels(df_long$Models)))
 
 ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
   geom_bar(stat = "identity", position = "dodge") +
@@ -469,12 +477,18 @@ df_M2H$Group <- NULL
 df_M2H$Models <- rownames(df_M2H)
 rownames(df_M2H) <- 1:nrow(df_M2H)
 
+# df_long <- df_M2H %>% 
+#   pivot_longer(cols = c('T30', 'Follow-up 1', 'Follow-up 2', 'Follow-up 3', 'Delta'),
+#                names_to = "Time point",
+#                values_to = "RMSE")
+# df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Delta", "Follow-up 3", "Follow-up 2", 'Follow-up 1', 'T30'), ordered = TRUE)
+
 df_long <- df_M2H %>% 
-  pivot_longer(cols = c('T30', 'Follow-up 1', 'Follow-up 2', 'Follow-up 3', 'Delta'),
+  pivot_longer(cols = c('Follow-up 1', 'Follow-up 2', 'Follow-up 3'),
                names_to = "Time point",
                values_to = "RMSE")
-df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Delta", "Follow-up 3", "Follow-up 2", 'Follow-up 1', 'T30'), ordered = TRUE)
-df_long$Models <- factor(df_long$Models, levels = c("rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVM Regression"), ordered = TRUE)
+df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Follow-up 3", "Follow-up 2", 'Follow-up 1'), ordered = TRUE)
+df_long$Models <- factor(df_long$Models, levels = c("rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVR"), ordered = TRUE)
 df_long$Models <- factor(df_long$Models, levels = rev(levels(df_long$Models)))
 
 ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +

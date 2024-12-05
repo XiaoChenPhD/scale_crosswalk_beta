@@ -38,7 +38,7 @@ library(e1071)
 
 # initialization
 work_dir <- "/Users/ChenXiao/Library/CloudStorage/OneDrive-Personal/Documents/scale_crosswalk/Analysis"
-code_dir <- "/Users/ChenXiao/Documents/My_Documents/scale_crosswalk/scale_crosswalk_alpha"
+code_dir <- "/Users/ChenXiao/Documents/My_Documents/scale_crosswalk/scale_crosswalk_beta"
 svm_kernal <- "linear"
 benchmark_filename <- "benchmarks_ALL_carryover.RData"
 model_baseline_filename <- "model_baseline_ALL_carryover.RData"
