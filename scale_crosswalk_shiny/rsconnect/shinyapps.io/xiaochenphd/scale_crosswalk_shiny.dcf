@@ -5,6 +5,6 @@ account: xiaochenphd
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 13111232
-bundleId: 9261104
+bundleId: 9472979
 url: https://xiaochenphd.shinyapps.io/scale_crosswalk_shiny/
 version: 1
