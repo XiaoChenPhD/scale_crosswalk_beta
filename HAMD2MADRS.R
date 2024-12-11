@@ -12,8 +12,12 @@
 #
 # Modified 240819
 # carry over the screen data to the baseline data if baseline data is missing in FOURD dataset
+#
 # Modified 240822
 # carry over ALL screen data to baseline data
+#
+# Modified 241210
+# reporting regression coefficients
 #
 # chenxiaophd@gmail.com
 
@@ -38,7 +42,7 @@ library(e1071)
 
 # initialization
 work_dir <- "/Users/ChenXiao/Library/CloudStorage/OneDrive-Personal/Documents/scale_crosswalk/Analysis"
-code_dir <- "/Users/ChenXiao/Documents/My_Documents/scale_crosswalk/scale_crosswalk_beta"
+code_dir <- "/Users/ChenXiao/Documents/project_codes/scale_crosswalk_beta"
 svm_kernal <- "linear"
 benchmark_filename <- "benchmarks_ALL_carryover.RData"
 model_baseline_filename <- "model_baseline_ALL_carryover.RData"
@@ -123,6 +127,23 @@ rownames(df_rmse) <- row_names
 df_mae <- as.data.frame(matrix(nrow = length(row_names), ncol = length(column_names)))
 colnames(df_mae) <- column_names
 rownames(df_mae) <- row_names
+
+# build a data frame to store the coefficients of regression model (sum score)
+row_names <- c('Intercept', 'HRSD sum score')
+column_names <- c('Baseline', 'T30', 'Follow-up 1', 'Follow-up 2', 'Follow-up 3', 'Delta')
+df_reg_coef <- as.data.frame(matrix(nrow = length(row_names), ncol = length(column_names)))
+colnames(df_reg_coef) <- column_names
+rownames(df_reg_coef) <- row_names
+
+# build a data frame to store the coefficients of regression model (item score)
+row_names <- c('Intercept', 'HRSD item 1', 'HRSD item 2', 'HRSD item 3', 'HRSD item 4', 
+               'HRSD item 5', 'HRSD item 6', 'HRSD item 7', 'HRSD item 8', 'HRSD item 9',
+               'HRSD item 10', 'HRSD item 11', 'HRSD item 12', 'HRSD item 13', 'HRSD item 14', 
+               'HRSD item 15', 'HRSD item 16', 'HRSD item 17')
+column_names <- c('Baseline', 'T30', 'Follow-up 1', 'Follow-up 2', 'Follow-up 3', 'Delta')
+df_reg_coef_item <- as.data.frame(matrix(nrow = length(row_names), ncol = length(column_names)))
+colnames(df_reg_coef_item) <- column_names
+rownames(df_reg_coef_item) <- row_names
 
 # the main loop, looping across all time points
 for (flag in c(1,2,3,4,5,6)){
@@ -216,6 +237,8 @@ for (flag in c(1,2,3,4,5,6)){
   # Multiple variable linear regression
   model_lm <- lm(madrs_total ~ hrsd_total, data = derivative_sample)
   coefficients <- coef(model_lm)
+  df_reg_coef[1, flag] <- round(coefficients[1], 2)
+  df_reg_coef[2, flag] <- round(coefficients[2], 2)
   
   predictions <- predict(model_lm, newdata = validation_sample)
   rmse <- rmse(validation_sample$madrs_total, predictions)
@@ -243,6 +266,9 @@ for (flag in c(1,2,3,4,5,6)){
                         hrsd12s + hrsd13s + hrsd14s + hrsd15s + hrsd16s + hrsd17s, 
                       data = derivative_sample)
   coefficients <- coef(model_lm_item)
+  for (i in 1:18) {
+    df_reg_coef_item[i, flag] <- round(coefficients[i],2)
+  }
   predictions <- predict(model_lm_item, newdata = validation_sample)
   rmse <- rmse(validation_sample$madrs_total, predictions)
   mae <- mae(validation_sample$madrs_total, predictions)
