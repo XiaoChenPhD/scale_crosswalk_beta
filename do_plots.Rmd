@@ -188,46 +188,58 @@ df_H2M$Group <- NULL
 df_H2M$Models <- rownames(df_H2M)
 rownames(df_H2M) <- 1:nrow(df_H2M)
 
+# Add a placeholder row for spacing
+placeholder <- data.frame(
+  Baseline = 0,
+  T30 = 0,
+  Delta = 0,
+  Models = "Spacer"
+)
+# Combine the original dataset with the placeholder
+df_H2M <- bind_rows(df_H2M, placeholder)
+
 df_long <- df_H2M %>% 
   pivot_longer(cols = c("Baseline", "T30", "Delta"),
                names_to = "Time point",
                values_to = "RMSE")
 df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Delta", "T30", "Baseline"), ordered = TRUE)
-df_long$Models <- factor(df_long$Models, levels = c("Pharmacotherapy Equipercentile Model", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVR"), ordered = TRUE)
-# df_long$Models <- factor(df_long$Models, levels = rev(levels(df_long$Models)))
+df_long$Models <- factor(df_long$Models, levels = c("Pharmacotherapy Equipercentile Model", "Spacer", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVR"), ordered = TRUE)
+df_long$Models <- factor(df_long$Models, levels = rev(levels(df_long$Models)))
 
 ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
-  geom_bar(stat = "identity", position = "dodge") +
+  geom_bar(stat = "identity", position = "dodge", width = 0.75) +
   scale_y_continuous(limits = c(0, ceiling(max_value)), breaks = seq(0, ceiling(max_value), by = 1)) +
   labs(title = "", x = "", y = "RMSE") +
   theme_classic() + coord_flip() +
   scale_fill_manual(values = custom_colors) +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(file.path(output_dir, "primary_H2M_legend.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
+ggsave(file.path(output_dir, "primary_H2M_spaced.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
 
 df_M2H$Group <- NULL
 df_M2H$Models <- rownames(df_M2H)
 rownames(df_M2H) <- 1:nrow(df_M2H)
+
+# Combine the original dataset with the placeholder
+df_M2H <- bind_rows(df_M2H, placeholder)
 
 df_long <- df_M2H %>% 
   pivot_longer(cols = c("Baseline", "T30", "Delta"),
                names_to = "Time point",
                values_to = "RMSE")
 df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Delta", "T30", "Baseline"), ordered = TRUE)
-df_long$Models <- factor(df_long$Models, levels = c("Pharmacotherapy Equipercentile Model", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVR"), ordered = TRUE)
+df_long$Models <- factor(df_long$Models, levels = c("Pharmacotherapy Equipercentile Model", "Spacer", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVR"), ordered = TRUE)
 df_long$Models <- factor(df_long$Models, levels = rev(levels(df_long$Models)))
 
-
 ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
-  geom_bar(stat = "identity", position = "dodge") +
+  geom_bar(stat = "identity", position = "dodge", width = 0.75) +
   scale_y_continuous(limits = c(0, ceiling(max_value)), breaks = seq(0, ceiling(max_value), by = 1)) +
   labs(title = "", x = "", y = "RMSE") +
   theme_classic() + coord_flip() +
   scale_fill_manual(values = custom_colors) +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(file.path(output_dir, "primary_M2H_v2.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
+ggsave(file.path(output_dir, "primary_M2H_spaced.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
 ```
 
 ## Supplementary Figure 1
@@ -321,46 +333,59 @@ df_H2M$Group <- NULL
 df_H2M$Models <- rownames(df_H2M)
 rownames(df_H2M) <- 1:nrow(df_H2M)
 
+# Add a placeholder row for spacing
+placeholder <- data.frame(
+  Baseline = 0,
+  T30 = 0,
+  Delta = 0,
+  Models = "Spacer"
+)
+# Combine the original dataset with the placeholder
+df_H2M <- bind_rows(df_H2M, placeholder)
+
 df_long <- df_H2M %>% 
   pivot_longer(cols = c("Follow-up 1", "Follow-up 2", "Follow-up 3"),
                names_to = "Time point",
                values_to = "RMSE")
 df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Follow-up 3", "Follow-up 2", "Follow-up 1"), ordered = TRUE)
-df_long$Models <- factor(df_long$Models, levels = c("Pharmacotherapy Equipercentile Model", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVR"), ordered = TRUE)
-# df_long$Models <- factor(df_long$Models, levels = rev(levels(df_long$Models)))
+df_long$Models <- factor(df_long$Models, levels = c("Pharmacotherapy Equipercentile Model", "Spacer", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVR"), ordered = TRUE)
+df_long$Models <- factor(df_long$Models, levels = rev(levels(df_long$Models)))
 
 ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
-  geom_bar(stat = "identity", position = "dodge") +
+  geom_bar(stat = "identity", position = "dodge", width = 0.75) +
   scale_y_continuous(limits = c(0, ceiling(max_value)), breaks = seq(0, ceiling(max_value), by = 1)) +
   labs(title = "", x = "", y = "RMSE") +
   theme_classic() + coord_flip() +
   scale_fill_manual(values = custom_colors) +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(file.path(output_dir, "folllowup_H2M_legend.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
+ggsave(file.path(output_dir, "folllowup_H2M_spaced.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
 
 df_M2H$Group <- NULL
 df_M2H$Models <- rownames(df_M2H)
 rownames(df_M2H) <- 1:nrow(df_M2H)
+
+# Combine the original dataset with the placeholder
+df_M2H <- bind_rows(df_M2H, placeholder)
 
 df_long <- df_M2H %>% 
   pivot_longer(cols = c("Follow-up 1", "Follow-up 2", "Follow-up 3"),
                names_to = "Time point",
                values_to = "RMSE")
 df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Follow-up 3", "Follow-up 2", "Follow-up 1"), ordered = TRUE)
-df_long$Models <- factor(df_long$Models, levels = c("Pharmacotherapy Equipercentile Model", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVM Regression"), ordered = TRUE)
+df_long$Models <- factor(df_long$Models, levels = c("Pharmacotherapy Equipercentile Model", "Spacer", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVR"), ordered = TRUE)
 df_long$Models <- factor(df_long$Models, levels = rev(levels(df_long$Models)))
 
 
 ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
-  geom_bar(stat = "identity", position = "dodge") +
+  geom_bar(stat = "identity", position = "dodge", width = 0.75) +
   scale_y_continuous(limits = c(0, ceiling(max_value)), breaks = seq(0, ceiling(max_value), by = 1)) +
   labs(title = "", x = "", y = "RMSE") +
   theme_classic() + coord_flip() +
   scale_fill_manual(values = custom_colors) +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(file.path(output_dir, "folllowup_M2H_v2.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
+ggsave(file.path(output_dir, "folllowup_M2H_spaced.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
 ```
 
 ## Figure 2: baseline model predicting other time points
