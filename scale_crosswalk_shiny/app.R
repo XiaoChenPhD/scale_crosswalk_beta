@@ -9,8 +9,12 @@
 # follow up 1-3: scores at different follow-up time points after finishing the treatment
 # delta: baseline score minus score at T30
 #
-# Xiao Chen
 # 240619
+#
+# remove all the negative values and round the predicted value to make them more realistic
+# 241214
+#
+# Xiao Chen
 # chenxiaophd@gmail.com
 
 library(shiny)
@@ -164,15 +168,47 @@ server <- function(input, output, session) {
       } else if (input$models1 == "rTMS Equipercentile Model") {
         # Placeholder for Percentile model
         responses <- equate(predictor_data, y = equating_result)
+        # round the predicted values and make sure they are in the meaningful ranges
+        responses <- round(responses, digits = 0)
+        responses[responses > 60] <- 60
+        if (flag == 6){
+          responses[responses < -60] <- -60
+        } else {
+          responses[responses < 0] <- sprintf("%.2f", 0)
+        }
      } else if (input$models1 == "Linear Regression") {
        df_predictor <- data.frame(hrsd_total = predictor_data)
        responses <- predict(model_lm, newdata = df_predictor)
+       # round the predicted values and make sure they are in the meaningful ranges
+       responses <- round(responses, digits = 0)
+       responses[responses > 60] <- 60
+       if (flag == 6){
+         responses[responses < -60] <- -60
+       } else {
+         responses[responses < 0] <- sprintf("%.2f", 0)
+       }
      } else if (input$models1 == "Random Forest Regression"){
        df_predictor <- data.frame(hrsd_total = predictor_data)
        responses <- predict(model_rf, newdata = df_predictor)
+       # round the predicted values and make sure they are in the meaningful ranges
+       responses <- round(responses, digits = 0)
+       if (flag == 6){
+         responses[responses < -60] <- -60
+       } else {
+         responses[responses < 0] <- sprintf("%.2f", 0)
+       }
+       responses[responses > 60] <- 60
      } else if (input$models1 == "SVR"){
        df_predictor <- data.frame(hrsd_total = predictor_data)
        responses <- predict(model_svm, newdata = df_predictor)
+       # round the predicted values and make sure they are in the meaningful ranges
+       responses <- round(responses, digits = 0)
+       responses[responses > 60] <- 60
+       if (flag == 6){
+         responses[responses < -60] <- -60
+       } else {
+         responses[responses < 0] <- sprintf("%.2f", 0)
+       }
      } ###################### MADRS to HAMD #############################
     } else if (input$predictor1 == "MADRS to HRSD") {
       if (input$models1 == "Pharmacotherapy Equipercentile Model") {
@@ -200,15 +236,47 @@ server <- function(input, output, session) {
       } else if (input$models1 == "rTMS Equipercentile Model") {
         # Placeholder for Percentile model
         responses <- equate(predictor_data, y = equating_result)
+        # round the predicted values and make sure they are in the meaningful ranges
+        responses <- round(responses, digits = 0)
+        responses[responses > 52] <- 52
+        if (flag == 6){
+          responses[responses < -52] <- -52
+        } else {
+          responses[responses < 0] <- sprintf("%.2f", 0)
+        }
       } else if (input$models1 == "Linear Regression") {
         df_predictor <- data.frame(madrs_total = predictor_data)
         responses <- predict(model_lm, newdata = df_predictor)
+        # round the predicted values and make sure they are in the meaningful ranges
+        responses <- round(responses, digits = 0)
+        responses[responses > 52] <- 52
+        if (flag == 6){
+          responses[responses < -52] <- -52
+        } else {
+          responses[responses < 0] <- sprintf("%.2f", 0)
+        }
       } else if (input$models1 == "Random Forest Regression"){
         df_predictor <- data.frame(madrs_total = predictor_data)
         responses <- predict(model_rf, newdata = df_predictor)
+        # round the predicted values and make sure they are in the meaningful ranges
+        responses <- round(responses, digits = 0)
+        responses[responses > 52] <- 52
+        if (flag == 6){
+          responses[responses < -52] <- -52
+        } else {
+          responses[responses < 0] <- sprintf("%.2f", 0)
+        }
       } else if (input$models1 == "SVR"){
         df_predictor <- data.frame(hrsd_total = predictor_data)
         responses <- predict(model_svm, newdata = df_predictor)
+        # round the predicted values and make sure they are in the meaningful ranges
+        responses <- round(responses, digits = 0)
+        responses[responses > 52] <- 52
+        if (flag == 6){
+          responses[responses < -52] <- -52
+        } else {
+          responses[responses < 0] <- sprintf("%.2f", 0)
+        }
       }
     }
     df$predictions <- responses
@@ -235,20 +303,68 @@ server <- function(input, output, session) {
                                  "hrsd15s", "hrsd16s", "hrsd17s")
       if (input$models2 == "Linear Regression") {
         responses <- predict(model_lm_item, newdata = predictor_data)
+        # round the predicted values and make sure they are in the meaningful ranges
+        responses <- round(responses, digits = 0)
+        responses[responses > 60] <- 60
+        if (flag == 6){
+          responses[responses < -60] <- -60
+        } else {
+          responses[responses < 0] <- sprintf("%.2f", 0)
+        }
       } else if (input$models2 == "Random Forest Regression") {
         responses <- predict(model_rf_item, newdata = predictor_data)
+        # round the predicted values and make sure they are in the meaningful ranges
+        responses <- round(responses, digits = 0)
+        responses[responses > 60] <- 60
+        if (flag == 6){
+          responses[responses < -60] <- -60
+        } else {
+          responses[responses < 0] <- sprintf("%.2f", 0)
+        }
       } else if (input$models2 == "SVR") {
         responses <- predict(model_svm_item, newdata = predictor_data)
+        # round the predicted values and make sure they are in the meaningful ranges
+        responses <- round(responses, digits = 0)
+        responses[responses > 60] <- 60
+        if (flag == 6){
+          responses[responses < -60] <- -60
+        } else {
+          responses[responses < 0] <- sprintf("%.2f", 0)
+        }
       }
     } else if (input$predictor2 == "MADRS to HRSD") {
       names(predictor_data) <- c("madrs1", "madrs2", "madrs3", "madrs4", "madrs5",
                                  "madrs6", "madrs7", "madrs8", "madrs9", "madrs10")
       if (input$models2 == "Linear Regression") {
         responses <- predict(model_lm_item, newdata = predictor_data)
+        # round the predicted values and make sure they are in the meaningful ranges
+        responses <- round(responses, digits = 0)
+        responses[responses > 52] <- 52
+        if (flag == 6){
+          responses[responses < -52] <- -52
+        } else {
+          responses[responses < 0] <- sprintf("%.2f", 0)
+        }
       } else if (input$models2 == "Random Forest Regression") {
         responses <- predict(model_rf_item, newdata = predictor_data)
+        # round the predicted values and make sure they are in the meaningful ranges
+        responses <- round(responses, digits = 0)
+        if (flag == 6){
+          responses[responses < -52] <- -52
+        } else {
+          responses[responses < 0] <- sprintf("%.2f", 0)
+        }
+        responses[responses > 52] <- 52
       } else if (input$models2 == "SVR") {
         responses <- predict(model_svm_item, newdata = predictor_data)
+        # round the predicted values and make sure they are in the meaningful ranges
+        responses <- round(responses, digits = 0)
+        responses[responses > 52] <- 52
+        if (flag == 6){
+          responses[responses < -52] <- -52
+        } else {
+          responses[responses < 0] <- sprintf("%.2f", 0)
+        }
       }
     }
     
