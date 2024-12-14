@@ -267,7 +267,7 @@ server <- function(input, output, session) {
           responses[responses < 0] <- sprintf("%.2f", 0)
         }
       } else if (input$models1 == "SVR"){
-        df_predictor <- data.frame(hrsd_total = predictor_data)
+        df_predictor <- data.frame(madrs_total = predictor_data)
         responses <- predict(model_svm, newdata = df_predictor)
         # round the predicted values and make sure they are in the meaningful ranges
         responses <- round(responses, digits = 0)
