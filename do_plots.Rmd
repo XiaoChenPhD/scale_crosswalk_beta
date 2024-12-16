@@ -40,21 +40,18 @@ benchmarks_HAMD2MADRS <- df_rmse
 load(file.path(work_dir, "benchmarks_M2H_ALL_carryover241205.RData"))
 benchmarks_MADRS2HAMD <- df_rmse
 
-custom_colors <- c("Pharmacotherapy Equipercentile Model" = "#6C946F", "Linear Regression" = "#D4BDAC", "rTMS Equipercentile Model" = "#FFA823", "RF Regression" = "#DC0083", "SVR" = "#536493", "SVR Item" = "#8CB9BD", "SVR Cov" = "#E7F0DC", "SVR Item Cov" = "#B6C7AA")
+custom_colors <- c("PEM (benchmark)" = "#6C946F", "Linear Regression" = "#D4BDAC", "rTMS Equipercentile Model" = "#FFA823", "RF Regression" = "#DC0083", "SVR" = "#536493", "SVR Item" = "#8CB9BD", "SVR Cov" = "#E7F0DC", "SVR Item Cov" = "#B6C7AA")
 ```
 
-## Not used: Figure 1 heatmap for main findings
+## Primary figure
 
-rmse results: HAMD2MADRS
+organize data
 
-comment out all the plot codes, some result matrix are still useful
-
-```{r heatmap hamd2madrs}
-library(pheatmap)
+```{r organize data}
 
 data_matrix <- matrix(0, nrow = 5, ncol = 3)
 colnames(data_matrix) <- c("Baseline", "T30", "Delta")
-rownames(data_matrix) <- c("Pharmacotherapy Equipercentile Model", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVR")
+rownames(data_matrix) <- c("PEM (benchmark)", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVR")
 
 temp <- 0
 for (i in c(1,2,10)){
@@ -62,32 +59,13 @@ for (i in c(1,2,10)){
   selected_values <- benchmarks_HAMD2MADRS[c(1,2,3,5,7),i]
   data_matrix[, temp] = selected_values
 }
-
-# my_breaks <- seq(2.5, 6.5, length.out = 200)
-# jet_colors <- colorRampPalette(c("blue", "cyan", "yellow", "red"))(length(my_breaks) - 1)
-# png(file.path(output_dir, "benchmark_HAMD2MADRS_primary.png"), 
-#     width = 6000, height = 6000, res = 1200)
-# pheatmap(data_matrix,
-#          display_numbers = TRUE,
-#          number_color = "black",
-#          breaks = my_breaks,
-#          color = jet_colors,
-#          fontsize_number = 14,
-#          cluster_cols = FALSE,
-#          cluster_rows = FALSE)
-# dev.off()
-
 # to make bar plots
 df_H2M <- as.data.frame(data_matrix)
 df_H2M$Group <- "HAMD to MADRS"
-```
 
-MADRS2HAMD
-
-```{r heatmap madrs2hamd}
 data_matrix <- matrix(0, nrow = 5, ncol = 3)
 colnames(data_matrix) <- c("Baseline", "T30", "Delta")
-rownames(data_matrix) <- c("Pharmacotherapy Equipercentile Model", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVR")
+rownames(data_matrix) <- c("PEM (benchmark)", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVR")
 
 temp <- 0
 for (i in c(1,2,10)){
@@ -96,77 +74,8 @@ for (i in c(1,2,10)){
   data_matrix[, temp] = selected_values
 }
 
-# my_breaks <- seq(2.5, 6.5, length.out = 200)
-# jet_colors <- colorRampPalette(c("blue", "cyan", "yellow", "red"))(length(my_breaks) - 1)
-# png(file.path(output_dir, "benchmark_MADRS2HAMD_primary.png"), 
-#     width = 6000, height = 6000, res = 1200)
-# pheatmap(data_matrix,
-#          display_numbers = TRUE,
-#          number_color = "black",
-#          breaks = my_breaks,
-#          color = jet_colors,
-#          fontsize_number = 14,
-#          cluster_cols = FALSE,
-#          cluster_rows = FALSE)
-# dev.off()
-
-# to make bar plots
 df_M2H <- as.data.frame(data_matrix)
 df_M2H$Group <- "MADRS to HAMD"
-```
-
-## Make grouped bar plots instead
-
-this version is outdated
-
-```{r}
-library(ggplot2)
-
-
-# baseline
-selected_columns <- df_full[, c("Baseline", "Group")]
-df_current <- data.frame(selected_columns)
-df_current$Models <- rownames(df_current)
-rownames(df_current) <- 1:nrow(df_current)
-df_current$Models <- gsub("1$", "", df_current$Models)
-
-ggplot(df_current, aes(x = Group, y = Baseline, fill = Models)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  scale_y_continuous(limits = c(0, ceiling(max_value)), breaks = seq(0, ceiling(max_value), by = 1)) +
-  labs(title = "Baseline", x = "", y = "RMSE") +
-  theme_classic() + coord_flip()
-
-ggsave(file.path(output_dir, "primary_baseline.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
-
-# T30
-selected_columns <- df_full[, c("T30", "Group")]
-df_current <- data.frame(selected_columns)
-df_current$Models <- rownames(df_current)
-rownames(df_current) <- 1:nrow(df_current)
-df_current$Models <- gsub("1$", "", df_current$Models)
-
-ggplot(df_current, aes(x = Group, y = T30, fill = Models)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  scale_y_continuous(limits = c(0, ceiling(max_value)), breaks = seq(0, ceiling(max_value), by = 1)) +
-  labs(title = "T30", x = "", y = "RMSE") +
-  theme_classic() + coord_flip()
-
-ggsave(file.path(output_dir, "primary_T30.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
-
-# delta
-selected_columns <- df_full[, c("Delta", "Group")]
-df_current <- data.frame(selected_columns)
-df_current$Models <- rownames(df_current)
-rownames(df_current) <- 1:nrow(df_current)
-df_current$Models <- gsub("1$", "", df_current$Models)
-
-ggplot(df_current, aes(x = Group, y = Delta, fill = Models)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  scale_y_continuous(limits = c(0, ceiling(max_value)), breaks = seq(0, ceiling(max_value), by = 1)) +
-  labs(title = "Delta", x = "", y = "RMSE") +
-  theme_classic() + coord_flip()
-
-ggsave(file.path(output_dir, "primary_Delta.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
 ```
 
 ## Another set of bar plots
@@ -174,7 +83,10 @@ ggsave(file.path(output_dir, "primary_Delta.png"), height = my_height, width = m
 This version is used
 
 ```{r}
+
+library(tidyr)
 library(tidyverse)
+library(ggplot2)
 
 
 df_full <- rbind(df_H2M,df_M2H)
@@ -203,8 +115,8 @@ df_long <- df_H2M %>%
                names_to = "Time point",
                values_to = "RMSE")
 df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Delta", "T30", "Baseline"), ordered = TRUE)
-df_long$Models <- factor(df_long$Models, levels = c("Pharmacotherapy Equipercentile Model", "Spacer", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVR"), ordered = TRUE)
-df_long$Models <- factor(df_long$Models, levels = rev(levels(df_long$Models)))
+df_long$Models <- factor(df_long$Models, levels = c("rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVR", "Spacer", "PEM (benchmark)"), ordered = TRUE)
+# df_long$Models <- factor(df_long$Models, levels = rev(levels(df_long$Models)))
 
 ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
   geom_bar(stat = "identity", position = "dodge", width = 0.75) +
@@ -214,7 +126,7 @@ ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
   scale_fill_manual(values = custom_colors) +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(file.path(output_dir, "primary_H2M_spaced.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
+ggsave(file.path(output_dir, "primary_H2M_spaced_legend_v2.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
 
 df_M2H$Group <- NULL
 df_M2H$Models <- rownames(df_M2H)
@@ -228,8 +140,8 @@ df_long <- df_M2H %>%
                names_to = "Time point",
                values_to = "RMSE")
 df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Delta", "T30", "Baseline"), ordered = TRUE)
-df_long$Models <- factor(df_long$Models, levels = c("Pharmacotherapy Equipercentile Model", "Spacer", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVR"), ordered = TRUE)
-df_long$Models <- factor(df_long$Models, levels = rev(levels(df_long$Models)))
+df_long$Models <- factor(df_long$Models, levels = c("rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVR", "Spacer", "PEM (benchmark)"), ordered = TRUE)
+# df_long$Models <- factor(df_long$Models, levels = rev(levels(df_long$Models)))
 
 ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
   geom_bar(stat = "identity", position = "dodge", width = 0.75) +
@@ -239,20 +151,18 @@ ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
   scale_fill_manual(values = custom_colors) +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(file.path(output_dir, "primary_M2H_spaced.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
+ggsave(file.path(output_dir, "primary_M2H_spaced_v2_legend.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
 ```
 
 ## Supplementary Figure 1
 
-the benchmark results at the followup time points: HAMD to MADRS
+organize data
 
-```{r HAMD2MADRS followup}
-library(pheatmap)
-
+```{r organize data}
 
 data_matrix <- matrix(0, nrow = 5, ncol = 3)
 colnames(data_matrix) <- c("Follow-up 1", "Follow-up 2", "Follow-up 3")
-rownames(data_matrix) <- c("Pharmacotherapy Equipercentile Model", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVR")
+rownames(data_matrix) <- c("PEM (benchmark)", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVR")
 
 temp <- 0
 for (i in c(4,6,8)){
@@ -261,33 +171,12 @@ for (i in c(4,6,8)){
   data_matrix[, temp] = selected_values
 }
 
-# my_breaks <- seq(2.5, 5, length.out = 200)
-# jet_colors <- colorRampPalette(c("blue", "cyan", "yellow", "red"))(length(my_breaks) - 1)
-# png(file.path(output_dir, "benchmark_HAMD2MADRS_followup.png"), 
-#     width = 6000, height = 6000, res = 1200)
-# pheatmap(data_matrix,
-#          display_numbers = TRUE,
-#          number_color = "black",
-#          breaks = my_breaks,
-#          color = jet_colors,
-#          fontsize_number = 14,
-#          cluster_cols = FALSE,
-#          cluster_rows = FALSE)
-# dev.off()
-
 df_H2M <- as.data.frame(data_matrix)
 df_H2M$Group <- "HAMD to MADRS"
-```
-
-MADRS to HAMD
-
-```{r MADRS2HAMD followup}
-library(pheatmap)
-
 
 data_matrix <- matrix(0, nrow = 5, ncol = 3)
 colnames(data_matrix) <- c("Follow-up 1", "Follow-up 2", "Follow-up 3")
-rownames(data_matrix) <- c("Pharmacotherapy Equipercentile Model", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVR")
+rownames(data_matrix) <- c("PEM (benchmark)", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVR")
 
 temp <- 0
 for (i in c(4,6,8)){
@@ -295,20 +184,6 @@ for (i in c(4,6,8)){
   selected_values <- benchmarks_MADRS2HAMD[c(1,2,3,5,7),i]
   data_matrix[, temp] = selected_values
 }
-
-# my_breaks <- seq(2.5, 5, length.out = 200)
-# jet_colors <- colorRampPalette(c("blue", "cyan", "yellow", "red"))(length(my_breaks) - 1)
-# png(file.path(output_dir, "benchmark_MADRS2HAMD_followup.png"), 
-#     width = 6000, height = 6000, res = 1200)
-# pheatmap(data_matrix,
-#          display_numbers = TRUE,
-#          number_color = "black",
-#          breaks = my_breaks,
-#          color = jet_colors,
-#          fontsize_number = 14,
-#          cluster_cols = FALSE,
-#          cluster_rows = FALSE)
-# dev.off()
 
 df_M2H <- as.data.frame(data_matrix)
 df_M2H$Group <- "MADRS to HAMD"
@@ -348,8 +223,8 @@ df_long <- df_H2M %>%
                names_to = "Time point",
                values_to = "RMSE")
 df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Follow-up 3", "Follow-up 2", "Follow-up 1"), ordered = TRUE)
-df_long$Models <- factor(df_long$Models, levels = c("Pharmacotherapy Equipercentile Model", "Spacer", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVR"), ordered = TRUE)
-df_long$Models <- factor(df_long$Models, levels = rev(levels(df_long$Models)))
+df_long$Models <- factor(df_long$Models, levels = c("rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVR", "Spacer", "PEM (benchmark)"), ordered = TRUE)
+# df_long$Models <- factor(df_long$Models, levels = rev(levels(df_long$Models)))
 
 ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
   geom_bar(stat = "identity", position = "dodge", width = 0.75) +
@@ -359,7 +234,7 @@ ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
   scale_fill_manual(values = custom_colors) +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(file.path(output_dir, "folllowup_H2M_spaced.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
+ggsave(file.path(output_dir, "folllowup_H2M_spaced_v2_legend.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
 
 df_M2H$Group <- NULL
 df_M2H$Models <- rownames(df_M2H)
@@ -373,8 +248,8 @@ df_long <- df_M2H %>%
                names_to = "Time point",
                values_to = "RMSE")
 df_long$`Time point` <- factor(df_long$`Time point`, levels = c("Follow-up 3", "Follow-up 2", "Follow-up 1"), ordered = TRUE)
-df_long$Models <- factor(df_long$Models, levels = c("Pharmacotherapy Equipercentile Model", "Spacer", "rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVR"), ordered = TRUE)
-df_long$Models <- factor(df_long$Models, levels = rev(levels(df_long$Models)))
+df_long$Models <- factor(df_long$Models, levels = c("rTMS Equipercentile Model", "Linear Regression", "RF Regression", "SVR", "Spacer", "PEM (benchmark)"), ordered = TRUE)
+# df_long$Models <- factor(df_long$Models, levels = rev(levels(df_long$Models)))
 
 
 ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
@@ -385,7 +260,7 @@ ggplot(df_long, aes(x = `Time point`, y = RMSE, fill = Models)) +
   scale_fill_manual(values = custom_colors) +
   theme(plot.title = element_text(hjust = 0.5))
 
-ggsave(file.path(output_dir, "folllowup_M2H_spaced.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
+ggsave(file.path(output_dir, "folllowup_M2H_spaced_v2_legend.png"), height = my_height, width = my_width, units = "cm", dpi = 1200)
 ```
 
 ## Figure 2: baseline model predicting other time points
